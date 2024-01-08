@@ -1,0 +1,32 @@
+---
+# Disabled checks
+#   -readability-magic-numbers
+#     -> It's simply too loud(at least for now)
+#   -performance-no-int-to-ptr
+#     -> It is unavoidable to convert between integers and pointers
+#   -misc-no-recursion
+#     -> Several algorithms are based on recursion(at least when I was initially writing this)
+#   -bugprone-easily-swappable-parameters
+#     -> Often there is no clear solution to the problem
+#   -readability-identifier-length
+#     -> It's just too loud
+UseColor: True
+WarningsAsErrors: >
+  *,
+  -readability-function-cognitive-complexity,
+
+Checks: >
+  bugprone-*,
+  cert-*,
+  clang-analyzer-*,
+  concurrency-*,
+  misc-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  modern-*,
+  -readability-magic-numbers,
+  -performance-no-int-to-ptr,
+  -misc-no-recursion,
+  -bugprone-easily-swappable-parameters,
+  -readability-identifier-length

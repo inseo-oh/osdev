@@ -1,0 +1,8 @@
+---
+# Disabled checks
+#   -bugprone-reserved-identifier, -cert-dcl37-c, -cert-dcl51-cpp
+#     -> We "are" who implementing the libc, and we have rights to use reserved identifiers :D
+#     -> cert-dcl37-c and cert-dcl51-cpp are alias for bugprone-reserved-identifier
+Checks: >
+        -bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp,
+        -misc-non-copyable-objects
