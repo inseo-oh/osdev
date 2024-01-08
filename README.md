@@ -46,7 +46,7 @@ In case you want to try out this mess yourself, here are instructions(which may 
 Under Ubuntu:
 ```sh
 # Install dependencies
-sudo apt install build-essential bison flex libgmp3-dev libmpc-dev libmpfr-dev texinfo python3
+sudo apt install build-essential bison flex libgmp3-dev libmpc-dev libmpfr-dev texinfo python3 cmake ninja-build
 # (This is proably incomplete list of packages)
 # And you probably also want an emulator:
 sudo apt install qemu-system-x86
