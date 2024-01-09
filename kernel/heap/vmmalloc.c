@@ -210,13 +210,16 @@ void vmfree(void *ptr) {
 }
 
 void *vmrealloc(void *ptr, size_t new_size) {
+        if (!ptr) {
+                return vmmalloc(new_size);
+        }
         bool prev_interrupt_state;
         spinlock_lock(&s_lock, &prev_interrupt_state);
         struct Alloc *alloc =
                 (struct Alloc *)((uintptr_t)ptr - offsetof(struct Alloc, data));
         size_t old_size = alloc->block_count * alloc->region->block_size;
         spinlock_unlock(&s_lock, prev_interrupt_state);
-        
+
         // TODO: Consider implementing in-place reallocation.
         void *new_ptr = vmmalloc(new_size);
         if (!new_ptr) {
