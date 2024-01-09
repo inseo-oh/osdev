@@ -211,6 +211,30 @@ bool str_equals(char const *str1, char const *str2);
 size_t kstrlen(char const *str);
 
 ////////////////////////////////////////////////////////////////////////////////
+// Character types
+////////////////////////////////////////////////////////////////////////////////
+
+static inline bool is_ascii_upper(uint32_t chr) {
+        return ('A' <= chr) && (chr <= 'Z');
+}
+
+static inline bool is_ascii_lower(uint32_t chr) {
+        return ('a' <= chr) && (chr <= 'z');
+}
+
+static inline bool is_ascii_alpha(uint32_t chr) {
+        return is_ascii_upper(chr) || is_ascii_lower(chr);
+}
+
+static inline uint32_t to_ascii_lower(uint32_t chr) {
+        return is_ascii_upper(chr) ? (chr - 'A' + 'a') : chr;
+}
+
+static inline uint32_t to_ascii_upper(uint32_t chr) {
+        return is_ascii_lower(chr) ? (chr - 'a' + 'A') : chr;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Platform detection macros
 ////////////////////////////////////////////////////////////////////////////////
 
