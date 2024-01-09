@@ -36,6 +36,8 @@ add_executable(kernel
         cli/clicmd_testpagealloc.c
         # Kernel internal utilities
         utility/list.c utility/ubsan.c utility/avltree.c utility/strutil.c utility/queue.c utility/bitmap.c
+        # Web - HTML
+        web/html/tokenizer.c
 
         ${ISOS_ARCH_SOURCES}
         )
