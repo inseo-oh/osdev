@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "cliarg.h"
-#include <kernel/kernel.h>
-#include <kernel/utility/utility.h>
+#include "kernel/kernel.h"
+#include "kernel/utility/utility.h"
 #include <stdbool.h>
 
 // TODO: Move this to somewhere else

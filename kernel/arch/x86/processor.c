@@ -4,13 +4,13 @@
 #include "_internal.h"
 #include "arch.h"
 #include <cpuid.h>
-#include <kernel/arch/arch.h>
-#include <kernel/heap/heap.h>
-#include <kernel/kernel.h>
-#include <kernel/lock/spinlock.h>
-#include <kernel/memory/memory.h>
-#include <kernel/tasks/tasks.h>
-#include <kernel/utility/utility.h>
+#include "kernel/arch/arch.h"
+#include "kernel/heap/heap.h"
+#include "kernel/kernel.h"
+#include "kernel/lock/spinlock.h"
+#include "kernel/memory/memory.h"
+#include "kernel/tasks/tasks.h"
+#include "kernel/utility/utility.h"
 #include <stdatomic.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -436,15 +436,12 @@ struct Processor_LocalState *processor_current() {
         return state;
 }
 
-struct Thread *processor_running_thread(struct Processor_LocalState const *state
-) {
+struct Thread *processor_running_thread(struct Processor_LocalState const *state) {
         ASSERT(!interrupts_are_enabled());
         return state->running_thread;
 }
 
-void processor_set_running_thread(
-        struct Processor_LocalState *state, struct Thread *thread
-) {
+void processor_set_running_thread(struct Processor_LocalState *state, struct Thread *thread) {
         ASSERT(!interrupts_are_enabled());
         state->running_thread = thread;
 }
@@ -651,8 +648,7 @@ static void init_common(struct Processor_LocalState *state) {
         init_tss(state);
         load_gdt(state);
         load_selectors();
-        // Reloading selectors seem to wipe GS.Base, so we load GS.Base after
-        // after that.
+        // Reloading selectors seem to wipe GS.Base, so we load GS.Base after after that.
         load_gs_base(state);
         enable_features();
 }
@@ -663,10 +659,12 @@ void processor_init_for_bsp(void) {
         s_bsp_localstate.flags = PROCESSOR_LOCALSTATE_FLAG_BSP;
         init_gdt(state);
         init_common(state);
+        state->cpu_num = 0;
 }
 
 void processor_init_for_ap(unsigned ap_index) {
         struct Processor_LocalState *state = &s_ap_localstates[ap_index];
+        state->cpu_num = 1 + ap_index;
         init_common(state);
 }
 
@@ -705,58 +703,40 @@ static bool am_i_processor(struct Processor_LocalState *state) {
         return current == state;
 }
 
-static void dump_message_state() {
-        struct Processor_LocalState *state = &s_bsp_localstate;
-        if (state->x86_ipimessages.head) {
-                LOGE(LOG_TAG, "Remaining messages present on BSP");
-        }
-        for (size_t i = 0; i < s_ap_count; ++i) {
-                struct Processor_LocalState *state = &s_ap_localstates[i];
-                if (state->x86_ipimessages.head) {
-                        LOGE(LOG_TAG, "Remaining messages present on AP");
-                }
-        }
-}
-
 void processor_process_ipimessages(void) {
-        {
-                ENTER_NO_INTERRUPT_SECTION();
-                struct Processor_LocalState *state = processor_current();
-                if (state->flags & PROCESSOR_LOCALSTATE_FLAG_X86_SHOULD_HALT) {
-                        LOGI(LOG_TAG, "Halt");
-                        while (1) {}
-                }
-                bool prev_interrupt_state;
-                spinlock_lock(
-                        &state->x86_ipimessages_lock, &prev_interrupt_state
-                );
-                while (1) {
-                        struct IPIMessage *msg = state->x86_ipimessages.tail;
-                        if (!msg) {
-                                break;
-                        }
-                        list_remove_tail(&state->x86_ipimessages);
-                        switch (msg->tag) {
-                        case IPIMESSAGE_FULL_TLB_FLUSH:
-                                mmu_invalidate_local_tlb();
-                                break;
-                        case IPIMESSAGE_PAGE_TLB_FLUSH:
-                                mmu_invalidate_local_tlb_for(
-                                        msg->data.page_tlb_flush.vaddr
-                                );
-                                break;
-                        case IPIMESSAGE_FREE:
-                        case IPIMESSAGE_UNINITIALIZED:
-                                UNREACHABLE();
-                        }
-                        --msg->remaining_response_count;
-                        dump_message_state();
-                }
-                spinlock_unlock(
-                        &state->x86_ipimessages_lock, prev_interrupt_state
-                );
-                LEAVE_NO_INTERRUPT_SECTION();
+        ENTER_NO_INTERRUPT_SECTION();
+        struct Processor_LocalState *state = processor_current();
+        if (state->flags & PROCESSOR_LOCALSTATE_FLAG_X86_SHOULD_HALT) {
+                LOGI(LOG_TAG, "Halt");
+                while (1) {}
         }
+        bool prev_interrupt_state;
+        // The reason we "try" spinlock is because if we use spinlock_lock, it will then call processor_process_ipimessages()
+        // while waiting for spinlock to unlock, which would cause infinite recursive call.
+        if (!spinlock_try_lock(&state->x86_ipimessages_lock, &prev_interrupt_state)) {
+                return;
+        }
+        while (1) {
+                struct IPIMessage *msg = state->x86_ipimessages.tail;
+                if (!msg) {
+                        break;
+                }
+                list_remove_tail(&state->x86_ipimessages);
+                switch (msg->tag) {
+                case IPIMESSAGE_FULL_TLB_FLUSH:
+                        mmu_invalidate_local_tlb();
+                        break;
+                case IPIMESSAGE_PAGE_TLB_FLUSH:
+                        mmu_invalidate_local_tlb_for(msg->data.page_tlb_flush.vaddr);
+                        break;
+                case IPIMESSAGE_FREE:
+                case IPIMESSAGE_UNINITIALIZED:
+                        UNREACHABLE();
+                }
+                --msg->remaining_response_count;
+        }
+        spinlock_unlock(&state->x86_ipimessages_lock, prev_interrupt_state);
+        LEAVE_NO_INTERRUPT_SECTION();
 }
 
 void processor_broadcast_ipi_to_others(void) {
@@ -771,8 +751,7 @@ void processor_broadcast_ipi_to_others(void) {
         );
 }
 
-static void
-queue_message(struct Processor_LocalState *state, struct IPIMessage *msg) {
+static void queue_message(struct Processor_LocalState *state, struct IPIMessage *msg) {
         bool prev_interrupt_state;
         spinlock_lock(&state->x86_ipimessages_lock, &prev_interrupt_state);
         list_insert_tail(&state->x86_ipimessages, &msg->node_head);

@@ -2,12 +2,12 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "tasks.h"
-#include <kernel/arch/arch.h>
-#include <kernel/heap/heap.h>
-#include <kernel/kernel.h>
-#include <kernel/lock/mutex.h>
-#include <kernel/lock/spinlock.h>
-#include <kernel/utility/utility.h>
+#include "kernel/arch/arch.h"
+#include "kernel/heap/heap.h"
+#include "kernel/kernel.h"
+#include "kernel/lock/mutex.h"
+#include "kernel/lock/spinlock.h"
+#include "kernel/utility/utility.h"
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -132,7 +132,9 @@ void scheduler_wakeup_thread(struct Thread *thread) {
 
 void scheduler_yield(void) {
         bool prev_interrupt_state;
-        spinlock_lock(&s_lock, &prev_interrupt_state);
+        if (!spinlock_try_lock(&s_lock, &prev_interrupt_state)) {
+                return;
+        }
         wakeup_mutex_lock_successful_threads();
         struct Processor_LocalState *processor = processor_current();
         struct Thread *to_thread = next_thread_to_run();
@@ -159,7 +161,9 @@ void scheduler_on_timer_tick(void) {
         bool need_switch = false;
         {
                 bool prev_interrupt_state;
-                spinlock_lock(&s_lock, &prev_interrupt_state);
+                if (!spinlock_try_lock(&s_lock, &prev_interrupt_state)) {
+                        return;
+                }
                 if (--s_remaining_thread_time <= 0) {
                         s_remaining_thread_time = MAX_THREAD_TIME;
                         need_switch = true;

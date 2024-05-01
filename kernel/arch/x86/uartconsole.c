@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "_internal.h"
-#include <kernel/arch/arch.h>
-#include <kernel/kernel.h>
+#include "kernel/arch/arch.h"
+#include "kernel/kernel.h"
 #include <stdbool.h>
 #include <stdint.h>
 

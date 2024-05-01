@@ -2,15 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "stdio.h"
-#include <string.h>
 #include <unistd.h>
 
 // https://pubs.opengroup.org/onlinepubs/9699919799/functions/fwrite.html
-size_t
-fwrite(void const *restrict ptr,
-       size_t size,
-       size_t nitems,
-       FILE *restrict stream) {
+size_t fwrite(void const *restrict ptr, size_t size, size_t nitems, FILE *restrict stream) {
         if (!size || !nitems) {
                 return 0;
         }

@@ -6,7 +6,7 @@ index 38f3d037a78..1cecd9c319d 100755
  	     | nsk* | powerunix* | genode* | zvmoe* | qnx* | emx* | zephyr* \
  	     | fiwix* )
  		;;
-+	isos* )
++	yjk* )
 +		;;
  	# This one is extra strict with allowed versions
  	sco3.2v2 | sco3.2v[4-9]* | sco5v6*)
@@ -21,8 +21,8 @@ index df90720b716..a109a519832 100755
      *-*-vxworks7* | \
 -    *-musl* )
 +    *-musl* | \
-+    *-*-isos* | \
-+    *-isos* )
++    *-*-yjk* | \
++    *-yjk* )
  	#  IF there is no include fixing,
  	#  THEN create a no-op fixer and exit
  	(echo "#! /bin/sh" ; echo "exit 0" ) > ${target}
@@ -34,7 +34,7 @@ index f0676c830e8..f291d7ee460 100644
  
  # Common parts for widely ported systems.
  case ${target} in
-+*-*-isos*)
++*-*-yjk*)
 +  gas=yes
 +  gnu_ld=yes
 +  default_use_cxa_atexit=yes
@@ -48,30 +48,30 @@ index f0676c830e8..f291d7ee460 100644
  	done
  	TM_MULTILIB_CONFIG=`echo $TM_MULTILIB_CONFIG | sed 's/^,//'`
  	;;
-+x86_64-*-isos*)
-+	tm_file="${tm_file} i386/unix.h i386/att.h elfos.h glibc-stdint.h i386/i386elf.h i386/x86-64.h isos.h"
-+	tmake_file="${tmake_file} i386/t-x86_64-isos" # Include the new multilib configuration
++x86_64-*-yjk*)
++	tm_file="${tm_file} i386/unix.h i386/att.h elfos.h glibc-stdint.h i386/i386elf.h i386/x86-64.h yjk.h"
++	tmake_file="${tmake_file} i386/t-x86_64-yjk" # Include the new multilib configuration
 +	;;
  i[34567]86-pc-msdosdjgpp*)
  	xm_file=i386/xm-djgpp.h
  	tm_file="${tm_file} i386/unix.h i386/bsd.h i386/gas.h i386/djgpp.h i386/djgpp-stdint.h"
-diff --git gcc/config/i386/t-x86_64-isos gcc/config/i386/t-x86_64-isos
+diff --git gcc/config/i386/t-x86_64-yjk gcc/config/i386/t-x86_64-yjk
 new file mode 100644
 index 00000000000..bcad1a14ec7
 --- /dev/null
-+++ gcc/config/i386/t-x86_64-isos
++++ gcc/config/i386/t-x86_64-yjk
 @@ -0,0 +1,2 @@
 +MULTILIB_OPTIONS += mno-red-zone
 +MULTILIB_DIRNAMES += no-red-zone
 \ No newline at end of file
-diff --git gcc/config/isos.h gcc/config/isos.h
+diff --git gcc/config/yjk.h gcc/config/yjk.h
 new file mode 100644
 index 00000000000..682de1b30cb
 --- /dev/null
-+++ gcc/config/isos.h
++++ gcc/config/yjk.h
 @@ -0,0 +1,21 @@
-+#undef TARGET_ISOS
-+#define TARGET_ISOS 1
++#undef TARGET_YJK
++#define TARGET_YJK 1
 +
 +#undef LIB_SPEC
 +#define LIB_SPEC "-lc"
@@ -85,9 +85,9 @@ index 00000000000..682de1b30cb
 +#undef TARGET_OS_CPP_BUILTINS
 +#define TARGET_OS_CPP_BUILTINS()      \
 +  do {                                \
-+    builtin_define ("__isos__");      \
++    builtin_define ("__yjk__");      \
 +    builtin_define ("__unix__");      \
-+    builtin_assert ("system=isos");   \
++    builtin_assert ("system=yjk");   \
 +    builtin_assert ("system=unix");   \
 +    builtin_assert ("system=posix");   \
 +  } while(0);
@@ -99,7 +99,7 @@ index 54d06978a5d..b8528e16bb4 100644
  	    ;;
  	esac
  	;;
-+x86_64-*-isos*)
++x86_64-*-yjk*)
 +	extra_parts="$extra_parts crti.o crtbegin.o crtend.o crtn.o"
 +	tmake_file="$tmake_file i386/t-crtstuff t-crtstuff-pic t-libgcc-pic"
 +	;;
@@ -137,7 +137,7 @@ index bef2b840a59..2fd01a3cc2e 100755
 +  CXXFLAGS="$ac_save_CXXFLAGS"
 +
 +    ;;
-+  *-isos*)
++  *-yjk*)
 +
 +  # All these tests are for C++; save the language and the compiler flags.
 +  # The CXXFLAGS thing is suspicious, but based on similar bits previously
@@ -3342,7 +3342,7 @@ index b3269cb88e0..87ab89b728c 100644
      GLIBCXX_CHECK_MATH_SUPPORT
      GLIBCXX_CHECK_STDLIB_SUPPORT
      ;;
-+  *-isos*)
++  *-yjk*)
 +    GLIBCXX_CHECK_COMPILER_FEATURES
 +    GLIBCXX_CHECK_LINKER_FEATURES
 +    GLIBCXX_CHECK_MATH_SUPPORT

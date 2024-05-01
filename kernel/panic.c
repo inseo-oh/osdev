@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "kernel.h"
-#include <kernel/arch/arch.h>
+#include "kernel/arch/arch.h"
 #include <stdarg.h>
 #include <stdbool.h>
 

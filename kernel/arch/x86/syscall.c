@@ -4,12 +4,12 @@
 #include "_internal.h"
 #include "arch.h"
 #include <errno.h>
-#include <kernel/api/bits/syscall.h>
-#include <kernel/kernel.h>
-#include <kernel/syscall.h>
+#include "kernel/api/bits/syscall.h"
+#include "kernel/kernel.h"
+#include "kernel/syscall.h"
 #include <stddef.h>
 #include <stdint.h>
-#include <kernel/utility/utility.h>
+#include "kernel/utility/utility.h"
 
 static char const *LOG_TAG = "syscall";
 
@@ -89,7 +89,7 @@ static int64_t sc_no_impl() {
         return -ENOSYS;
 }
 
-uintptr_t syscall_x86_table[SYSCALL_COUNT];
+USED uintptr_t syscall_x86_table[SYSCALL_COUNT];
 #define ST syscall_x86_table
 
 _Static_assert(
@@ -102,6 +102,7 @@ void syscall_init_tables(void) {
         }
         ST[SYSCALL_INDEX_WRITE] = (uintptr_t)syscall_impl_write;
         ST[SYSCALL_INDEX_READ] = (uintptr_t)syscall_impl_read;
+        ST[SYSCALL_INDEX_DPRINT] = (uintptr_t)syscall_impl_dprint;
         ST[SYSCALL_INDEX_SCHED_YIELD] = (uintptr_t)syscall_impl_sched_yield;
 }
 

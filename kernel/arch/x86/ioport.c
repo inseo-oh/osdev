@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: (c) 2023 Inseo Oh <dhdlstjtr@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
-#include <kernel/arch/arch.h>
-#include <kernel/kernel.h>
+#include "kernel/arch/arch.h"
+#include "kernel/kernel.h"
 #include <stddef.h>
 #include <stdint.h>
 

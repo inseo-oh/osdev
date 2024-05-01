@@ -6,12 +6,12 @@
 // #define USE_KMALLOC_AS_BACKING_STORE
 
 #include "heap.h"
-#include <kernel/arch/arch.h>
-#include <kernel/kernel.h>
-#include <kernel/lock/spinlock.h>
-#include <kernel/utility/utility.h>
+#include "kernel/arch/arch.h"
+#include "kernel/kernel.h"
+#include "kernel/lock/spinlock.h"
+#include "kernel/utility/utility.h"
 #ifndef USE_KMALLOC_AS_BACKING_STORE
-#include <kernel/tasks/tasks.h>
+#include "kernel/tasks/tasks.h"
 #endif
 #include <stdalign.h>
 #include <stdbool.h>
@@ -215,8 +215,7 @@ void *vmrealloc(void *ptr, size_t new_size) {
         }
         bool prev_interrupt_state;
         spinlock_lock(&s_lock, &prev_interrupt_state);
-        struct Alloc *alloc =
-                (struct Alloc *)((uintptr_t)ptr - offsetof(struct Alloc, data));
+        struct Alloc *alloc = (struct Alloc *)((uintptr_t)ptr - offsetof(struct Alloc, data));
         size_t old_size = alloc->block_count * alloc->region->block_size;
         spinlock_unlock(&s_lock, prev_interrupt_state);
 

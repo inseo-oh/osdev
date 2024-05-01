@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #pragma once
-#include <kernel/lock/spinlock.h>
+#include "kernel/lock/spinlock.h"
 
 struct Thread;
 

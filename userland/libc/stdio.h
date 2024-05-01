@@ -5,6 +5,11 @@
 #include <stdarg.h>
 #include <sys/types.h>
 
+#ifdef __LIBC_INTERNAL
+typedef struct FILE FILE;
+FILE *__libc_fdopen_inner(FILE *out, int filedes, char const *mode);
+#endif
+
 // https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/stdio.h.html
 
 #if defined(__cplusplus)
@@ -15,14 +20,19 @@ extern "C" {
 #define SEEK_END 1
 #define SEEK_SET 2
 
-#define EOF -1
+#define EOF  (-1)
 
-// NOTE: Contents of FILE is not specified by standard, meaning nobody but
-//       implementation should access any of these fields.
-//       Which is great because we can put whatever hell needed to manage the
-//       file I/O :D
+// NOTE: Contents of FILE is not specified by standard, meaning *nobody* but implementation
+//       is supposed to access any of these fields.
+//       Which is great because we can put whatever hell needed to manage file I/O :D
 typedef struct FILE {
-        int fd;
+        // While the FILE has its own small buffer, it may be provided externally as well.
+        // This is to allow functions like snprintf point to the destination buffer instead of
+        // the internal one. 
+        char unwritten_data[256];
+        char *unwritten_data_ptr;
+        size_t unwritten_data_len, unwritten_data_max_len;
+        int fd; 
 } FILE;
 
 typedef size_t size_t;

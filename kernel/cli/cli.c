@@ -4,9 +4,9 @@
 #include "cli.h"
 #include "cliarg.h"
 #include "clicmd.h"
-#include <kernel/arch/arch.h>
-#include <kernel/kernel.h>
-#include <kernel/utility/utility.h>
+#include "kernel/arch/arch.h"
+#include "kernel/kernel.h"
+#include "kernel/utility/utility.h"
 #include <stdbool.h>
 #include <stdnoreturn.h>
 

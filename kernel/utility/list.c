@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "utility.h"
-#include <kernel/kernel.h>
+#include "kernel/kernel.h"
 #include <stddef.h>
 
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
 
 static void check_node_integrity(struct List_Node *node) {
         if (node->prev && ((struct List_Node *)node->prev)->next != node) {
@@ -53,7 +53,7 @@ void list_insert_before(
 ) {
         ASSERT(list);
         ASSERT(node);
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_list_integrity(*list);
 #endif
         node->next = before;
@@ -74,7 +74,7 @@ void list_insert_before(
         if (!list->tail) {
                 list->tail = node;
         }
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_list_integrity(*list);
 #endif
 }
@@ -84,7 +84,7 @@ void list_insert_after(
 ) {
         ASSERT(list);
         ASSERT(node);
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_list_integrity(*list);
 #endif
         if (after) {
@@ -105,7 +105,7 @@ void list_insert_after(
         if (!list->head) {
                 list->head = node;
         }
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_list_integrity(*list);
 #endif
 }
@@ -113,7 +113,7 @@ void list_insert_after(
 void list_remove(struct List *list, struct List_Node *node) {
         ASSERT(list);
         ASSERT(node);
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_list_integrity(*list);
 #endif
         if (node->prev) {
@@ -128,7 +128,7 @@ void list_remove(struct List *list, struct List_Node *node) {
         if (node == list->tail) {
                 list->tail = node->prev;
         }
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_list_integrity(*list);
 #endif
 }

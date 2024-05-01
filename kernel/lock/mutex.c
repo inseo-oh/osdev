@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "mutex.h"
-#include <kernel/heap/heap.h>
-#include <kernel/kernel.h>
-#include <kernel/utility/utility.h>
-#include <kernel/tasks/tasks.h>
+#include "kernel/heap/heap.h"
+#include "kernel/kernel.h"
+#include "kernel/utility/utility.h"
+#include "kernel/tasks/tasks.h"
 #include <stdbool.h>
 #include <stddef.h>
 

@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: BSD-2-Clause
 #include "cliarg.h"
 #include "clicmd.h"
-#include <kernel/arch/arch.h>
-#include <kernel/heap/heap.h>
-#include <kernel/kernel.h>
-#include <kernel/tasks/tasks.h>
-#include <kernel/utility/utility.h>
+#include "kernel/arch/arch.h"
+#include "kernel/heap/heap.h"
+#include "kernel/kernel.h"
+#include "kernel/tasks/tasks.h"
+#include "kernel/utility/utility.h"
 #include <stdatomic.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -18,9 +18,21 @@ static void *(*s_malloc_fn)(size_t);
 static void (*s_free_fn)(void *);
 static atomic_uint s_task_counter = 0;
 
+static uint32_t random(void) {
+        static uint32_t lfsr = 0xdeadbeef;
+        static uint32_t output = 0;
+        for (unsigned i = 0; i < (sizeof(output) * 8); i++) {
+                unsigned bit = ((lfsr >> 12) ^ (lfsr >> 16) ^ (lfsr >> 19) ^ (lfsr >> 31)) & 1;
+                lfsr = (lfsr >> 1) | (bit << 31);
+                output = (output << 1) | (lfsr & 1);
+        }
+        return output;
+}
+
+
 static void *make_random_alloc(size_t *size_out) {
         while (1) {
-                *size_out = ticktime_get_count() % (32UL * 1024) + 1;
+                *size_out = random() % (32UL * 1024) + 1;
                 void *result = s_malloc_fn(*size_out);
                 if (result) {
                         return result;
@@ -28,9 +40,7 @@ static void *make_random_alloc(size_t *size_out) {
         }
 }
 
-static bool address_collides(
-        uintptr_t begin_a, uintptr_t end_a, uintptr_t begin_b, uintptr_t end_b
-) {
+static bool address_collides(uintptr_t begin_a, uintptr_t end_a, uintptr_t begin_b, uintptr_t end_b) {
         if ((begin_b <= begin_a) && (begin_a < end_b)) {
                 return true;
         }
@@ -46,24 +56,12 @@ static bool address_collides(
         return false;
 }
 
-static void test_equal(
-        char const *test_name,
-        uint8_t **allocs,
-        uint8_t expected,
-        unsigned task_id,
-        unsigned alloc,
-        unsigned offset
-) {
+static void test_equal(char const *test_name, uint8_t **allocs, uint8_t expected, unsigned task_id, unsigned alloc, unsigned offset) {
         unsigned got = allocs[alloc][offset];
         if (expected != got) {
                 LOGE(LOG_TAG,
                      "[%u] %s FAIL: ALLOC %u, OFFSET %u: expected %u, got %u",
-                     test_name,
-                     task_id,
-                     alloc,
-                     offset,
-                     expected,
-                     got);
+                     test_name, task_id, alloc, offset, expected, got);
                 panic("Memory test failed");
         }
 }
@@ -88,15 +86,9 @@ static void run_single_pass(unsigned task_id) {
                         uintptr_t end_b = begin_b + alloc_sizes[alloc_b];
                         if (address_collides(begin_a, end_a, begin_b, end_b)) {
                                 LOGE(LOG_TAG,
-                                     "[%u] Address collision test FAIL: ALLOC "
-                                     "A %u @ %p~%p, ALLOC B %u @ %p~%p",
-                                     task_id,
-                                     alloc_a,
-                                     begin_a,
-                                     end_a - 1,
-                                     alloc_b,
-                                     begin_b,
-                                     end_b - 1);
+                                     "[%u] Address collision test FAIL: ALLOC A %u @ %p~%p, ALLOC B %u @ %p~%p",
+                                     task_id, alloc_a, begin_a, end_a - 1, alloc_b, begin_b, end_b - 1
+                                );
                                 panic("Memory test failed");
                         }
                 }
@@ -114,14 +106,7 @@ static void run_single_pass(unsigned task_id) {
                 for (unsigned alloc = 0; alloc < ALLOC_COUNT; ++alloc) {
                         size_t byte_count = alloc_sizes[alloc];
                         for (size_t offset = 0; offset < byte_count; ++offset) {
-                                test_equal(
-                                        "Same byte fill test",
-                                        allocs,
-                                        b,
-                                        task_id,
-                                        alloc,
-                                        offset
-                                );
+                                test_equal("Same byte fill test", allocs, b, task_id, alloc, offset);
                         }
                 }
         }
@@ -136,14 +121,7 @@ static void run_single_pass(unsigned task_id) {
                 size_t byte_count = alloc_sizes[alloc];
                 for (size_t offset = 0; offset < byte_count; ++offset) {
                         unsigned expected = offset & 0xFF;
-                        test_equal(
-                                "Random fill test",
-                                allocs,
-                                expected,
-                                task_id,
-                                alloc,
-                                offset
-                        );
+                        test_equal("Random fill test", allocs, expected, task_id, alloc, offset);
                 }
                 // And free it
                 s_free_fn(allocs[alloc]);
@@ -153,7 +131,8 @@ static void run_single_pass(unsigned task_id) {
 static void run_test(void) {
         interrupts_enable();
 
-        unsigned task_id = ++s_task_counter;
+        unsigned task_id = s_task_counter;
+        s_task_counter++;
         LOGI(LOG_TAG, "[%u] Test started", task_id);
         unsigned pass_count = 0;
         while (1) {

@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include <errno.h>
-#include <kernel/arch/arch.h>
-#include <kernel/kernel.h>
-#include <kernel/tasks/tasks.h>
-#include <kernel/utility/utility.h>
+#include "kernel/arch/arch.h"
+#include "kernel/kernel.h"
+#include "kernel/tasks/tasks.h"
+#include "kernel/utility/utility.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -236,6 +236,7 @@ int64_t exec(char const *name, void const *data, size_t size) {
         }
         loaded_phdrs = true;
         void (*entry_point)() = (void (*)())ehdr.e_entry;
+        console_printf("spawn main\n");
         if (!thread_spawn(process, "main", entry_point)) {
                 result = -ENOMEM;
                 goto fail;

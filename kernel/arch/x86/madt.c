@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "_internal.h"
-#include <kernel/kernel.h>
-#include <kernel/utility/utility.h>
+#include "kernel/kernel.h"
+#include "kernel/utility/utility.h"
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -42,18 +42,14 @@ bool madt_entry_next_of_type(
         for (; iter->next_byte_index < iter->byte_count;
              iter->next_byte_index += len) {
                 void const *src = &g_madt->entries[iter->next_byte_index];
-                struct MADT_EntryHeader hdr;
+                struct MADT_EntryHeader hdr = {};
                 kmemcpy(&hdr, src, sizeof(hdr));
                 len = hdr.len;
                 ASSERT(len);
                 if (hdr.type != type) {
                         continue;
                 }
-                // TODO(OIS): We could only copy rest of data, rather than
-                //            re-copying the whole thing.
-                size_t copy_len = sizeof(union MADT_Entry) < len
-                                          ? sizeof(union MADT_Entry)
-                                          : len;
+                size_t copy_len = sizeof(union MADT_Entry) < len ? sizeof(union MADT_Entry) : len;
                 kmemcpy(out, src, copy_len);
                 iter->next_byte_index += len;
                 return true;

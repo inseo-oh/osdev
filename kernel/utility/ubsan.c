@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: (c) 2023 Inseo Oh <dhdlstjtr@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
-#ifdef ISOS_ULTRA_PARANOID_MODE
-#include <kernel/kernel.h>
+#ifdef YJK_ULTRA_PARANOID_MODE
+#include "kernel/kernel.h"
 #include <stdint.h>
 #include <stdnoreturn.h>
 

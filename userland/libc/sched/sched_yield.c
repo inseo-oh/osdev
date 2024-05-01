@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "sched.h"
-#include <isos/syscall.h>
-#include <kernel/utility/utility.h>
+#include <yjk/syscall.h>
+#include "kernel/utility/utility.h"
 
 // https://pubs.opengroup.org/onlinepubs/9699919799/functions/sched_yield.html
 int sched_yield(void) {

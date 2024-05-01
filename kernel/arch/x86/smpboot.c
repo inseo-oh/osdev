@@ -2,12 +2,12 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "_internal.h"
-#include <kernel/arch/arch.h>
-#include <kernel/kernel.h>
-#include <kernel/lock/spinlock.h>
-#include <kernel/memory/memory.h>
-#include <kernel/tasks/tasks.h>
-#include <kernel/utility/utility.h>
+#include "kernel/arch/arch.h"
+#include "kernel/kernel.h"
+#include "kernel/lock/spinlock.h"
+#include "kernel/memory/memory.h"
+#include "kernel/tasks/tasks.h"
+#include "kernel/utility/utility.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -82,17 +82,14 @@ extern void *smpboot_ap_initial_rsps;
 // those areas must be identity-mapped on BSP in order to use these functions.
 
 static void volatile *ap_boot_code_var(void *var) {
-        uintptr_t addr = ((uintptr_t)var - (uintptr_t)&smpboot_ap_boot_code) +
-                         SMPBOOT_AP_BOOT_CODE_PHYS_BASE;
+        uintptr_t addr = ((uintptr_t)var - (uintptr_t)&smpboot_ap_boot_code) + SMPBOOT_AP_BOOT_CODE_PHYS_BASE;
         // UBsan will hate us if it's not aligned to 8-byte boundary
         ASSERT(!(addr & 0x7));
         return (void volatile *)addr;
 }
 
-static void volatile *
-ap_boot_code_array_item(void *var, size_t item_size, unsigned item_index) {
-        uintptr_t addr = ((uintptr_t)var - (uintptr_t)&smpboot_ap_boot_code) +
-                         SMPBOOT_AP_BOOT_CODE_PHYS_BASE;
+static void volatile *ap_boot_code_array_item(void *var, size_t item_size, unsigned item_index) {
+        uintptr_t addr = ((uintptr_t)var - (uintptr_t)&smpboot_ap_boot_code) + SMPBOOT_AP_BOOT_CODE_PHYS_BASE;
         addr += item_size * item_index;
         // UBsan will hate us if it's not aligned to 8-byte boundary
         ASSERT(!(addr & 0x7));
@@ -104,6 +101,7 @@ ap_boot_code_array_item(void *var, size_t item_size, unsigned item_index) {
 // AP Startup code
 // clang-format off
 __asm__(".align 8\n"
+        ".global smpboot_ap_boot_code, smpboot_ap_boot_code_end, smpboot_ap_entry, smpboot_ap_pml4, smpboot_ap_initial_rsps\n"
         "smpboot_ap_boot_code:\n"
         ////////////////////////////////////////////////////////////////////////
         // 16-bit real-mode code
@@ -245,8 +243,7 @@ __asm__(".align 8\n"
 // clang-format on
 
 static size_t ap_boot_code_byte_count() {
-        return (uintptr_t)&smpboot_ap_boot_code_end -
-               (uintptr_t)&smpboot_ap_boot_code;
+        return (uintptr_t)&smpboot_ap_boot_code_end - (uintptr_t)&smpboot_ap_boot_code;
 }
 
 // AP stack size
@@ -357,12 +354,11 @@ void smpboot_start(void) {
         LEAVE_NO_INTERRUPT_SECTION();
 
         // Start APs
+        LOGI(LOG_TAG, "Booting APs...");
         for (unsigned i = 0; i < apic_count; ++i) {
                 struct LAPIC_Descriptor const *info = lapic_for_processor(i);
                 if (info->apic_id == lapic_for_current_processor()->apic_id) {
-                        LOGI(LOG_TAG,
-                             "APIC %u is BSP. Skipping...",
-                             info->apic_id);
+                        LOGI(LOG_TAG, "APIC %u is BSP. Skipping...", info->apic_id);
                         continue;
                 }
 
@@ -373,6 +369,7 @@ void smpboot_start(void) {
         bool prev_interrupt_state = interrupts_enable();
         bool all_booted = false;
         while (!all_booted) {
+                processor_process_ipimessages();
                 bool prev_interrupt_state;
                 spinlock_lock(&s_booted_ap_count_lock, &prev_interrupt_state);
                 if (s_booted_ap_count == ap_count) {

@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "kernel.h"
-#include <kernel/tasks/tasks.h>
-#include <kernel/utility/utility.h>
+#include "kernel/tasks/tasks.h"
+#include "kernel/utility/utility.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

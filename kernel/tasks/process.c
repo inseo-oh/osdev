@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: BSD-2-Clause
 #include "tasks.h"
 #include <errno.h>
-#include <kernel/api/bits/limits.h>
-#include <kernel/arch/arch.h>
-#include <kernel/heap/heap.h>
-#include <kernel/kernel.h>
-#include <kernel/lock/spinlock.h>
-#include <kernel/memory/memory.h>
-#include <kernel/sections.h>
-#include <kernel/utility/utility.h>
+#include "kernel/api/bits/limits.h"
+#include "kernel/arch/arch.h"
+#include "kernel/heap/heap.h"
+#include "kernel/kernel.h"
+#include "kernel/lock/spinlock.h"
+#include "kernel/memory/memory.h"
+#include "kernel/sections.h"
+#include "kernel/utility/utility.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -32,8 +32,7 @@ struct Process {
         char name[PROC_NAME_MAX_LEN + 1];
 };
 
-static mmu_prot_t
-make_mmu_prot_flags(struct Process *process, struct Proc_MapOptions options) {
+static mmu_prot_t make_mmu_prot_flags(struct Process *process, struct Proc_MapOptions options) {
         mmu_prot_t prot_flags = 0;
         if (options.executable) {
                 prot_flags |= MMU_PROT_EXEC;
@@ -47,13 +46,7 @@ make_mmu_prot_flags(struct Process *process, struct Proc_MapOptions options) {
         return prot_flags;
 }
 
-WARN_UNUSED_RESULT static bool map_pages(
-        mmu_addrspace_t addrspace,
-        void *virtbase,
-        uintptr_t physbase,
-        mmu_prot_t prot,
-        size_t count
-) {
+WARN_UNUSED_RESULT static bool map_pages(mmu_addrspace_t addrspace, void *virtbase, uintptr_t physbase, mmu_prot_t prot, size_t count) {
         size_t mapped_count = 0;
         uintptr_t current_virtbase = (uintptr_t)virtbase;
         uintptr_t current_physbase = (uintptr_t)physbase;
@@ -125,12 +118,7 @@ tid_t process_add_thread(struct Process *process, struct Thread *thread) {
         return tid;
 }
 
-void *process_map_unaligned(
-        struct Process *process,
-        uintptr_t physaddr,
-        size_t size,
-        struct Proc_MapOptions options
-) {
+void *process_map_unaligned(struct Process *process, uintptr_t physaddr, size_t size, struct Proc_MapOptions options) {
         uintptr_t aligned_base = physaddr - (physaddr % PAGE_SIZE);
         uintptr_t offset = physaddr - aligned_base;
         size += offset;
@@ -153,12 +141,7 @@ void process_unmap_unaligned(struct Process *process, void *base, size_t size) {
         process_unmap_pages(process, (void *)aligned_base, page_count);
 }
 
-void *process_map_pages(
-        struct Process *process,
-        uintptr_t physbase,
-        size_t page_count,
-        struct Proc_MapOptions options
-) {
+void *process_map_pages(struct Process *process, uintptr_t physbase, size_t page_count, struct Proc_MapOptions options) {
         ASSERT(physbase != 0);
         ASSERT(is_aligned(PAGE_SIZE, physbase));
         bool prev_interrupt_state;
@@ -188,13 +171,7 @@ out:
         return virtbase;
 }
 
-bool process_map_pages_at(
-        struct Process *process,
-        uintptr_t physbase,
-        void *virtbase,
-        size_t page_count,
-        struct Proc_MapOptions options
-) {
+bool process_map_pages_at(struct Process *process, uintptr_t physbase, void *virtbase, size_t page_count, struct Proc_MapOptions options) {
         ASSERT(is_aligned(PAGE_SIZE, (uintptr_t)virtbase));
         ASSERT(is_aligned(PAGE_SIZE, physbase));
         bool prev_interrupt_state;
@@ -226,9 +203,7 @@ out:
         return alloc_ok;
 }
 
-void process_unmap_pages(
-        struct Process *process, void *virtbase, size_t page_count
-) {
+void process_unmap_pages(struct Process *process, void *virtbase, size_t page_count) {
         ASSERT(is_aligned(PAGE_SIZE, (uintptr_t)virtbase));
         bool prev_interrupt_state;
         spinlock_lock(&process->lock, &prev_interrupt_state);
@@ -240,12 +215,7 @@ void process_unmap_pages(
         spinlock_unlock(&process->lock, prev_interrupt_state);
 }
 
-void process_set_map_options(
-        struct Process *process,
-        void *virtbase,
-        size_t page_count,
-        struct Proc_MapOptions options
-) {
+void process_set_map_options(struct Process *process, void *virtbase, size_t page_count, struct Proc_MapOptions options) {
         ASSERT(is_aligned(PAGE_SIZE, (uintptr_t)virtbase));
         bool prev_interrupt_state;
         spinlock_lock(&process->lock, &prev_interrupt_state);
@@ -259,12 +229,7 @@ void process_set_map_options(
         spinlock_unlock(&process->lock, prev_interrupt_state);
 }
 
-WARN_UNUSED_RESULT void *process_alloc_pages(
-        struct Process *process,
-        uintptr_t *paddr_out,
-        size_t page_count,
-        struct Proc_MapOptions options
-) {
+WARN_UNUSED_RESULT void *process_alloc_pages(struct Process *process, uintptr_t *paddr_out, size_t page_count, struct Proc_MapOptions options) {
         // TODO: Allocate one page at a time, instead of multiple at once!
         struct PhysPage_Addr paddr = physpage_alloc(page_count);
         void *vaddr = NULL;
@@ -308,9 +273,7 @@ struct Process *process_spawn_user(char const *name) {
         return do_spawn(name, mmu_addrspace, false);
 }
 
-WARN_UNUSED_RESULT ssize_t process_fd_write(
-        struct Process *process, int fd, void const *buf, size_t count
-) {
+WARN_UNUSED_RESULT ssize_t process_fd_write(struct Process *process, int fd, void const *buf, size_t count) {
         if (SSIZE_MAX < count) {
                 return -EINVAL;
         }
@@ -339,8 +302,7 @@ out:
         return result;
 }
 
-WARN_UNUSED_RESULT ssize_t
-process_fd_read(struct Process *process, int fd, void *buf, size_t count) {
+WARN_UNUSED_RESULT ssize_t process_fd_read(struct Process *process, int fd, void *buf, size_t count) {
         if (SSIZE_MAX < count) {
                 return -EINVAL;
         }
@@ -366,8 +328,7 @@ out:
 static pid_t s_next_pid = 0;
 static struct Process *s_kernel_process;
 
-WARN_UNUSED_RESULT static struct Process *
-do_spawn(char const *name, mmu_addrspace_t addrspace, bool is_kernel_process) {
+WARN_UNUSED_RESULT static struct Process *do_spawn(char const *name, mmu_addrspace_t addrspace, bool is_kernel_process) {
         struct Process *process = kmalloc(sizeof(*process));
         kmemset(process, 0, sizeof(*process));
         if (!process) {

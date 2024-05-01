@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "_internal.h"
-#include <kernel/heap/heap.h>
-#include <kernel/kernel.h>
-#include <kernel/tasks/tasks.h>
+#include "kernel/heap/heap.h"
+#include "kernel/kernel.h"
+#include "kernel/tasks/tasks.h"
 #include <stdbool.h>
 #include <stdint.h>
 

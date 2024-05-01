@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: BSD-2-Clause
 #include "cliarg.h"
 #include "clicmd.h"
-#include <kernel/arch/arch.h>
-#include <kernel/kernel.h>
-#include <kernel/tasks/tasks.h>
+#include "kernel/arch/arch.h"
+#include "kernel/kernel.h"
+#include "kernel/tasks/tasks.h"
 #include <stdatomic.h>
 #include <stdbool.h>
 #include <stddef.h>

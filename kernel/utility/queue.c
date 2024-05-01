@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "utility.h"
-#include <kernel/kernel.h>
+#include "kernel/kernel.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

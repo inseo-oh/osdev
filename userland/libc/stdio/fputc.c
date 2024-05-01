@@ -2,16 +2,28 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "stdio.h"
+#include <assert.h>
 #include <unistd.h>
+#include <yjk/magicfd.h>
+#include <yjk/dprint.h>
 
 // https://pubs.opengroup.org/onlinepubs/9699919799/functions/fputc.html
 int fputc(int c, FILE *stream) {
-        unsigned char chr = c;
-        ssize_t result = write(stream->fd, &chr, 1);
-        if (result < 0) {
-                __builtin_trap(); // TODO: Handle error
-                return EOF;
+        if (stream->unwritten_data_len == stream->unwritten_data_max_len) {
+                int result = fflush(stream);
+                if (result == EOF) {
+                        assert(!"todo: handle error");
+                        return EOF;
+                }
         }
-        // TODO: Update file timestamps
+        stream->unwritten_data[stream->unwritten_data_len] = c;
+        stream->unwritten_data_len++;
+        if ((stream->unwritten_data_len == stream->unwritten_data_max_len) || (c == '\n')) {
+                int result = fflush(stream);
+                if (result == EOF) {
+                        assert(!"todo: handle error");
+                        return EOF;
+                }
+        }
         return 0;
 }

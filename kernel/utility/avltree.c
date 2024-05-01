@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "utility.h"
-#include <kernel/kernel.h>
+#include "kernel/kernel.h"
 #include <stddef.h>
 #include <time.h>
 
@@ -19,7 +19,7 @@ static dir_t child_dir_in_parent(struct AVLTree_Node const *node) {
         ASSERT(!"`parent` does not have `node` as child?");
 }
 
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
 static void check_integrity_inner(
         struct AVLTree tree,
         struct AVLTree_Node const *root,
@@ -62,7 +62,7 @@ rotate(struct AVLTree *tree, struct AVLTree_Node *rotation_root, dir_t dir) {
         struct AVLTree_Node *node_y = node_z->children[1 - dir];
         ASSERT(node_y);
         struct AVLTree_Node *node_x = node_y->children[dir];
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_integrity(*tree);
 #endif
         /*
@@ -96,7 +96,7 @@ rotate(struct AVLTree *tree, struct AVLTree_Node *rotation_root, dir_t dir) {
         if (node_x) {
                 node_x->parent = node_z;
         }
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_integrity(*tree);
 #endif
 }
@@ -223,7 +223,7 @@ void *avltree_search(struct AVLTree *tree, avltree_key_t key) {
 }
 
 void avltree_insert(struct AVLTree *tree, void *node, avltree_key_t key) {
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_integrity(*tree);
 #endif
         ((struct AVLTree_Node *)node)->key = key;
@@ -243,18 +243,18 @@ void avltree_insert(struct AVLTree *tree, void *node, avltree_key_t key) {
         ((struct AVLTree_Node *)node)->parent = result_parent;
         ASSERT(!result_parent->children[child_dir]);
         result_parent->children[child_dir] = node;
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_integrity(*tree);
 #endif
         check_and_rebalance_tree(tree, ((struct AVLTree_Node *)node)->parent);
 
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_integrity(*tree);
 #endif
 }
 
 void avltree_remove(struct AVLTree *tree, struct AVLTree_Node *node) {
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_integrity(*tree);
 #endif
         struct AVLTree_Node *old_node = node;
@@ -286,13 +286,13 @@ void avltree_remove(struct AVLTree *tree, struct AVLTree_Node *node) {
                 replace_with->parent = parent;
         }
 
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_integrity(*tree);
 #endif
 
         check_and_rebalance_tree(tree, ((struct AVLTree_Node *)node)->parent);
 
-#ifdef ISOS_ULTRA_PARANOID_MODE
+#ifdef YJK_ULTRA_PARANOID_MODE
         check_integrity(*tree);
 #endif
 }

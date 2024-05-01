@@ -1,59 +1,60 @@
 // SPDX-FileCopyrightText: (c) 2023-2024 Inseo Oh <dhdlstjtr@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
+
 #include "_internal.h"
 #include <errno.h>
-#include <kernel/arch/arch.h>
-#include <kernel/builddate.h>
-#include <kernel/cli/cli.h>
-#include <kernel/heap/heap.h>
-#include <kernel/kernel.h>
-#include <kernel/memory/memory.h>
-#include <kernel/tasks/tasks.h>
-#include <kernel/utility/utility.h>
+#include "kernel/arch/arch.h"
+#include "kernel/builddate.h"
+#include "kernel/cli/cli.h"
+#include "kernel/heap/heap.h"
+#include "kernel/kernel.h"
+#include "kernel/memory/memory.h"
+#include "kernel/tasks/tasks.h"
+#include "kernel/utility/utility.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdnoreturn.h>
 #include <support/thirdparty/limine/limine.h>
 
-LIMINE_BASE_REVISION(1)
+USED LIMINE_BASE_REVISION(1)
 
-struct limine_framebuffer_request framebuffer_request = {
+USED struct limine_framebuffer_request framebuffer_request = {
         .id = LIMINE_FRAMEBUFFER_REQUEST,
         .revision = 0,
 };
 
-struct limine_memmap_request memmap_request = {
+USED struct limine_memmap_request memmap_request = {
         .id = LIMINE_MEMMAP_REQUEST,
         .revision = 0,
 };
 
-struct limine_rsdp_request rsdp_request = {
+USED struct limine_rsdp_request rsdp_request = {
         .id = LIMINE_RSDP_REQUEST,
         .revision = 0,
 };
 
-struct limine_hhdm_request hhdm_request = {
+USED struct limine_hhdm_request hhdm_request = {
         .id = LIMINE_HHDM_REQUEST,
         .revision = 0,
 };
 
-static struct limine_internal_module internal_module_font = {
-        .path = "/isos/font.bin",
+USED static struct limine_internal_module internal_module_font = {
+        .path = "/yjk/font.bin",
         .cmdline = "",
         .flags = LIMINE_INTERNAL_MODULE_REQUIRED,
 };
-static struct limine_internal_module internal_module_hellosvc = {
-        .path = "/isos/hellosvc",
+USED static struct limine_internal_module internal_module_hellosvc = {
+        .path = "/yjk/hellosvc",
         .cmdline = "",
         .flags = LIMINE_INTERNAL_MODULE_REQUIRED,
 };
-static struct limine_internal_module *internal_modules[] = {
+USED static struct limine_internal_module *internal_modules[] = {
         [0] = &internal_module_font,
         [1] = &internal_module_hellosvc,
 };
-struct limine_module_request module_request = {
+USED struct limine_module_request module_request = {
         .id = LIMINE_MODULE_REQUEST,
         .revision = 1,
 
@@ -158,19 +159,17 @@ static uint32_t make_bitmask(int size, int lshift) {
 }
 
 static void init_videoconsole(bool vmmalloc_available) {
-        struct limine_file *file = search_for_module("/isos/font.bin");
+        struct limine_file *file = search_for_module("/yjk/font.bin");
         if (!file) {
-                panic("Couldn't locate /isos/font.bin");
+                panic("Couldn't locate /yjk/font.bin");
         }
         if (!framebuffer_request.response) {
-                panic("Bootloader didn't provide response to framebuffer "
-                      "request");
+                panic("Bootloader didn't provide response to framebuffer request");
         }
         if (!framebuffer_request.response->framebuffer_count) {
                 panic("Bootloader didn't provide any framebuffers");
         }
-        struct limine_framebuffer *fbinfo =
-                framebuffer_request.response->framebuffers[0];
+        struct limine_framebuffer *fbinfo = framebuffer_request.response->framebuffers[0];
         ASSERT(fbinfo->bpp == 32);
         videoconsole_init(
                 fbinfo->address,
@@ -185,12 +184,92 @@ static void init_videoconsole(bool vmmalloc_available) {
         );
 }
 
-void init_acpi(void) {
+static void init_acpi(void) {
         if (!rsdp_request.response) {
                 panic("Bootloader didn't provide ACPI RSDP");
         }
         acpi_load_root_sdt(rsdp_request.response->address);
 }
+
+char *kstrchr(char const *s, int c) {
+        while (1) {
+                if (*s == c) {
+                        return (char *)s;
+                }
+                if (!*s) {
+                        return NULL;
+                }
+                s++;
+        }
+}
+
+
+void objpath_free(char **opath) {
+        while (1) {
+                char *ptr = *opath;
+                if (!ptr) {
+                        break;
+                }
+                vmfree(*opath);
+                opath++;
+        }
+}
+
+void objpath_print(char **opath) {
+        while (1) {
+                char *ptr = *opath;
+                if (!ptr) {
+                        break;
+                }
+                console_printf("[objpath] %s\n", *opath);
+                opath++;
+        }
+}
+
+char **objpath_new(char const *path) {
+        char **out = NULL;
+        size_t path_count = 0;
+        while (path[0]) {
+                char *slash_pos = kstrchr(path, '/');
+                size_t len;
+                if (slash_pos) {
+                        len = slash_pos - path;
+                } else {
+                        len = kstrlen(path);
+                }
+                if (!len) {
+                        continue;
+                }
+                char *segment = vmmalloc(len + 1);
+                if (!segment) {
+                        goto oom;
+                }
+                kmemcpy(segment, path, len);
+                segment[len] = '\0';
+                char **new_out = vmrealloc(out, sizeof(void *) * (path_count + 1));
+                if (!new_out) {
+                        vmfree(segment);
+                        goto oom;
+                }
+                new_out[path_count] = segment;
+                path += len;
+                out = new_out;
+                path_count++;
+        }
+        char **new_out = vmrealloc(out, sizeof(void *) * (path_count + 1));
+        if (!new_out) {
+                goto oom;
+        }
+        new_out[path_count] = NULL;
+        return out;
+oom:
+        for (size_t i = 0; i < path_count; i++) {
+                vmfree(out[i]);
+        }
+        vmfree(out);
+        return NULL;
+}
+
 
 static void boot_stage2_bsp() {
         static char const *LOG_TAG = "boot-stage2(bsp)";
@@ -208,15 +287,12 @@ static void boot_stage2_bsp() {
         lapic_init_for_bsp();
         ioapic_init();
         console_printf(
-                // clang-format off
                 ""
                 "------------------------------------------------------------\n"
-                "                      Welcome to ISOS.\n"
+                "                    Welcome back, Sensei\n"
                 "         Kernel image timestamp: " BUILDDATE "\n"
                 "      Number of processors: %u    Size of memory: %uMiB\n"
-                "------------------------------------------------------------\n"
-                // clang-format on
-                ,
+                "------------------------------------------------------------\n",
                 lapic_count(),
                 s_total_mem_size_in_mb
         );
@@ -229,12 +305,17 @@ static void boot_stage2_bsp() {
         smpboot_start();
         interrupts_enable();
 
-        LOGI(LOG_TAG, "Launch userspace service");
-        while (0) {
-                int64_t err = exec_module("/isos/hellosvc");
-                if (err < 0) {
-                        LOGE(LOG_TAG, "Failed to launch executable (%u)", -err);
-                }
+        while(0) {
+                char **p = objpath_new("hello/world/sensei");
+                objpath_print(p);
+                objpath_free(p);
+                console_printf("-----------------\n");
+        }
+
+        LOGI(LOG_TAG, "Kernel boot complete. Starting userspace software...");
+        int64_t err = exec_module("/yjk/hellosvc");
+        if (err < 0) {
+                LOGE(LOG_TAG, "Failed to launch executable (%u)", -err);
         }
 
         LOGI(LOG_TAG, "The system is ready for use");
@@ -250,13 +331,15 @@ static void doomed() {
 }
 
 noreturn void kernel_entry(void) {
-        static char const *LOG_TAG = "boot-stage1";
         if (!LIMINE_BASE_REVISION_SUPPORTED) {
                 doomed();
         }
         uartconsole_init();
+        console_printf("Kernel is starting up\n");
+#ifdef YJK_ULTRA_PARANOID_MODE
+        console_printf("YJK_ULTRA_PARANOID_MODE is ON\n");
+#endif
         init_videoconsole(false);
-        LOGI(LOG_TAG, "ISOS is starting");
         kmalloc_init();
         processor_init_for_bsp();
         idt_init_bsp();
@@ -264,9 +347,8 @@ noreturn void kernel_entry(void) {
         if (!hhdm_request.response) {
                 panic("Requested HHDM to bootloader, but got no response");
         }
-        void *identity_mapped_base = (void *)hhdm_request.response->offset;
-        mmu_addrspace_t kernel_vm_addrspace_handle =
-                mmu_init_for_bsp(identity_mapped_base);
+        void *direct_mapped_base = (void *)hhdm_request.response->offset;
+        mmu_addrspace_t kernel_vm_addrspace_handle = mmu_init_for_bsp(direct_mapped_base);
         process_spawn_kernel(kernel_vm_addrspace_handle);
         scheduler_init_for_bsp(boot_stage2_bsp);
 }

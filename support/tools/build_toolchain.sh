@@ -9,7 +9,7 @@ ARCH=$1
 
 case $ARCH in
   "x86")
-    TARGET=x86_64-isos;
+    TARGET=x86_64-yjk;
     ;;
   *)
     echo "Unknown arch $ARCH";
@@ -17,8 +17,7 @@ case $ARCH in
     ;;
 esac
 
-# sysroot *must* be absolute path, or toolchain build will fail with cryptic
-# error messages.
+# sysroot *must* be absolute path, or toolchain build will fail with cryptic error messages.
 SYSROOT=$(realpath build/$ARCH/out/sysroot)
 SUPPORT_DIR=$PWD/support
 PREFIX=$PWD/toolchain/$ARCH
@@ -27,9 +26,8 @@ mkdir -p $PREFIX
 
 echo " >>> Prepare libc headers"
 # Before we can build GCC, we need to prepare libc header files.
-# Normally this is done during OS build, but we need working compiler to finish
-# OS compilation, which leads to chicken-and-egg problem.
-# Since we can't rely on normal build procedure, we have to copy those manually.
+# Normally this is done during OS build, but we need working GCC for that first!
+# So that means can't rely on normal build procedure, and we have to copy those manually.
 $SUPPORT_DIR/tools/copy_libc_headers.sh $ARCH $PWD
 
 PATH="$PREFIX/bin:$PATH"
@@ -65,13 +63,11 @@ mkdir -p $GCC_BUILD_DIR
 
 echo " >>> Download binutils"
 if [ ! -f $BINUTILS_LOCAL_TARPATH ]; then
-        wget https://ftp.gnu.org/gnu/binutils/$BINUTILS_TARFILE\
-                -O $BINUTILS_LOCAL_TARPATH
+        wget https://ftp.gnu.org/gnu/binutils/$BINUTILS_TARFILE -O $BINUTILS_LOCAL_TARPATH
 fi
 echo " >>> Download gcc"
 if [ ! -f $GCC_LOCAL_TARPATH ]; then
-        wget http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/$GCC_DIRNAME/$GCC_TARFILE \
-                -O $GCC_LOCAL_TARPATH
+        wget http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/$GCC_DIRNAME/$GCC_TARFILE -O $GCC_LOCAL_TARPATH
 fi
 
 cd $SRC_DIR

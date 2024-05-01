@@ -26,7 +26,7 @@ def wsl_path_to_windows(path):
 IS_WSL2 = os.uname().release.find("WSL2") != -1
 
 use_gdbstub = False
-if os.getenv('ISOS_USE_GDBSTUB') == '1':
+if os.getenv('YJK_USE_GDBSTUB') == '1':
         use_gdbstub = True
 
 cdrom_path="boot.iso"
@@ -39,7 +39,9 @@ qemu_args = [
         "-cpu", "qemu64,smap,smep",
         "-display", "sdl",
         "-d", "guest_errors",
-        "-smp", "2",
+        "-smp", "8",
+        "-no-reboot",
+        # "-nographic",
 ]
 
 if use_gdbstub:

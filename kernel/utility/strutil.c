@@ -2,14 +2,13 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "utility.h"
-#include <kernel/kernel.h>
+#include "kernel/kernel.h"
 #include <stdbool.h>
 #include <stdint.h>
 
 void kmemset(void *dest, int byte, size_t len) {
         // TODO(OIS): Optimization is needed
-        for (uint8_t *next_dest = (uint8_t *)dest; len != 0;
-             *(next_dest++) = byte, --len) {}
+        for (uint8_t *next_dest = (uint8_t *)dest; len != 0; *(next_dest++) = byte, --len) {}
 }
 
 // TODO: Turn this into memcmp style function
@@ -29,6 +28,20 @@ bool mem_equals(void const *mem1, void const *mem2, size_t n) {
 void kmemcpy(
         void *__restrict__ dest, void const *__restrict__ src, size_t len
 ) {
+#ifdef __x86_64__
+         unsigned dummy_output;
+        __asm__ volatile(
+                "cld\n"
+                "rep movsb\n"
+                : "=c"(dummy_output),
+                  "=S"(dummy_output),
+                  "=D"(dummy_output)
+                : "c" (len),
+                  "S" (src),
+                  "D" (dest)
+                : "memory", "cc"
+        );
+#else
         size_t mod1 = (uintptr_t)src % 8;
         size_t copy_len = 0;
         if (mod1) {
@@ -42,29 +55,6 @@ void kmemcpy(
         if (len < copy_len) {
                 copy_len = len;
         }
-#ifdef __x86_64__
-        // Use REP MOVS on x86
-        __asm__ volatile("rep movsb" ::"D"(dest), "S"(src), "c"(copy_len));
-        len -= copy_len;
-        src += copy_len;
-        dest += copy_len;
-        copy_len = len & ~7;
-        __asm__ volatile("rep movsq" ::"D"(dest), "S"(src), "c"(copy_len / 8));
-        len -= copy_len;
-        src += copy_len;
-        dest += copy_len;
-        copy_len = len & ~3;
-        __asm__ volatile("rep movsd" ::"D"(dest), "S"(src), "c"(copy_len / 4));
-        len -= copy_len;
-        src += copy_len;
-        dest += copy_len;
-        copy_len = len & ~1;
-        __asm__ volatile("rep movsw" ::"D"(dest), "S"(src), "c"(copy_len / 2));
-        len -= copy_len;
-        src += copy_len;
-        dest += copy_len;
-        __asm__ volatile("rep movsb" ::"D"(dest), "S"(src), "c"(len));
-#else
         {
                 uint8_t const *next_src = (uint8_t const *)src;
                 uint8_t *next_dest;

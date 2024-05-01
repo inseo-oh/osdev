@@ -6,4 +6,5 @@
 #define SYSCALL_INDEX_WRITE       0
 #define SYSCALL_INDEX_READ        1
 #define SYSCALL_INDEX_SCHED_YIELD 2
-#define SYSCALL_COUNT             3
+#define SYSCALL_INDEX_DPRINT      3
+#define SYSCALL_COUNT             4

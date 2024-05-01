@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #pragma once
-#include <kernel/utility/utility.h>
+#include "kernel/utility/utility.h"
 #include <stdbool.h>
 
 #define SPINLOCK_STORE_LOCKED_LOCATION
@@ -39,8 +39,7 @@ void spinlock_lock_impl(
         char const *file,
         int line
 );
-#define spinlock_lock(_lock, _prev_interrupt_state_out) \
-        spinlock_lock_impl(_lock, _prev_interrupt_state_out, __FILE__, __LINE__)
+#define spinlock_lock(_lock, _prev_interrupt_state_out) spinlock_lock_impl(_lock, _prev_interrupt_state_out, __FILE__, __LINE__)
 #else
 void spinlock_lock(struct SpinLock *lock, bool *prev_interrupt_state_out);
 #endif

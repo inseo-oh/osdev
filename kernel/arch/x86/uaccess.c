@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: (c) 2023 Inseo Oh <dhdlstjtr@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
-#include <kernel/arch/arch.h>
+#include "kernel/arch/arch.h"
 #include <stdbool.h>
 
 static bool is_smap_supported() {

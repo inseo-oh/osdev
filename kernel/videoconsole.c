@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "kernel.h"
-#include <kernel/arch/arch.h>
-#include <kernel/lock/spinlock.h>
-#include <kernel/tasks/tasks.h>
-#include <kernel/utility/utility.h>
+#include "kernel/arch/arch.h"
+#include "kernel/lock/spinlock.h"
+#include "kernel/tasks/tasks.h"
+#include "kernel/utility/utility.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -182,7 +182,7 @@ void videoconsole_init(
                 .get_char_fn = get_char,
                 .flush_fn = flush,
         };
-
+        (void)console_driver;
         s_font = font;
         s_video_buf = buf;
         s_width = width;

@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: BSD-2-Clause
 #include "_internal.h"
 #include "arch.h"
-#include <kernel/arch/arch.h>
-#include <kernel/interrupt/interrupts.h>
-#include <kernel/kernel.h>
+#include "kernel/arch/arch.h"
+#include "kernel/interrupt/interrupts.h"
+#include "kernel/kernel.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdnoreturn.h>
-#include <kernel/utility/utility.h>
+#include "kernel/utility/utility.h"
 
 struct TrapFrame {
         uint64_t r15;
@@ -125,33 +125,21 @@ noreturn static void generic_exc(struct TrapFrame const *frm, uint8_t exc_num) {
         panic("CPU exception");
 }
 
-void isr_exc0_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 0); }
+USED void isr_exc0_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 0); }
+USED void isr_exc1_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 1); }
+USED void isr_exc2_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 2); }
+USED void isr_exc3_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 3); }
+USED void isr_exc4_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 4); }
+USED void isr_exc5_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 5); }
+USED void isr_exc6_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 6); }
+USED void isr_exc7_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 7); }
+USED void isr_exc8_handler(struct TrapFrame *frm) { generic_exc(frm, 8); }
+USED void isr_exc9_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 9); }
+USED void isr_exc10_handler(struct TrapFrame *frm) { generic_exc(frm, 10); }
+USED void isr_exc11_handler(struct TrapFrame *frm) { generic_exc(frm, 11); }
+USED void isr_exc12_handler(struct TrapFrame *frm) { generic_exc(frm, 12); }
 
-void isr_exc1_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 1); }
-
-void isr_exc2_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 2); }
-
-void isr_exc3_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 3); }
-
-void isr_exc4_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 4); }
-
-void isr_exc5_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 5); }
-
-void isr_exc6_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 6); }
-
-void isr_exc7_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 7); }
-
-void isr_exc8_handler(struct TrapFrame *frm) { generic_exc(frm, 8); }
-
-void isr_exc9_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 9); }
-
-void isr_exc10_handler(struct TrapFrame *frm) { generic_exc(frm, 10); }
-
-void isr_exc11_handler(struct TrapFrame *frm) { generic_exc(frm, 11); }
-
-void isr_exc12_handler(struct TrapFrame *frm) { generic_exc(frm, 12); }
-
-void isr_exc13_handler(struct TrapFrame *frm) {
+USED void isr_exc13_handler(struct TrapFrame *frm) {
         enum {
                 FLAG_E = 1 << 0,
                 FLAG_TABLE_MASK = 0x3 << 1,
@@ -203,7 +191,7 @@ void isr_exc13_handler(struct TrapFrame *frm) {
         panic("CPU exception");
 }
 
-void isr_exc14_handler(struct TrapFrame *frm) {
+USED void isr_exc14_handler(struct TrapFrame *frm) {
         enum {
                 FLAG_P = 1,
                 FLAG_W = 1 << 1,
@@ -243,42 +231,25 @@ void isr_exc14_handler(struct TrapFrame *frm) {
         panic("CPU exception");
 }
 
-void isr_exc15_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 15); }
+USED void isr_exc15_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 15); }
+USED void isr_exc16_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 16); }
+USED void isr_exc17_handler(struct TrapFrame *frm) { generic_exc(frm, 17); }
+USED void isr_exc18_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 18); }
+USED void isr_exc19_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 19); }
+USED void isr_exc20_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 20); }
+USED void isr_exc21_handler(struct TrapFrame *frm) { generic_exc(frm, 21); }
+USED void isr_exc22_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 22); }
+USED void isr_exc23_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 23); }
+USED void isr_exc24_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 24); }
+USED void isr_exc25_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 25); }
+USED void isr_exc26_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 26); }
+USED void isr_exc27_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 27); }
+USED void isr_exc28_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 28); }
+USED void isr_exc29_handler(struct TrapFrame *frm) { generic_exc(frm, 29); }
+USED void isr_exc30_handler(struct TrapFrame *frm) { generic_exc(frm, 30); }
+USED void isr_exc31_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 31); }
 
-void isr_exc16_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 16); }
-
-void isr_exc17_handler(struct TrapFrame *frm) { generic_exc(frm, 17); }
-
-void isr_exc18_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 18); }
-
-void isr_exc19_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 19); }
-
-void isr_exc20_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 20); }
-
-void isr_exc21_handler(struct TrapFrame *frm) { generic_exc(frm, 21); }
-
-void isr_exc22_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 22); }
-
-void isr_exc23_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 23); }
-
-void isr_exc24_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 24); }
-
-void isr_exc25_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 25); }
-
-void isr_exc26_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 26); }
-
-void isr_exc27_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 27); }
-
-void isr_exc28_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 28); }
-
-void isr_exc29_handler(struct TrapFrame *frm) { generic_exc(frm, 29); }
-
-void isr_exc30_handler(struct TrapFrame *frm) { generic_exc(frm, 30); }
-
-void isr_exc31_handler(struct TrapFrame *frm) { generic_exc_no_code(frm, 31); }
-
-
-void isr_handle_interrupt(struct TrapFrame *frm, uint64_t int_num) {
+USED void isr_handle_interrupt(struct TrapFrame *frm, uint64_t int_num) {
         (void)frm;
         ASSERT(!interrupts_are_enabled());
         ASSERT(32 <= int_num); // 0~31 are for exceptions

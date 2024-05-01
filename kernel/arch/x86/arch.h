@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #pragma once
-#include <kernel/lock/spinlock.h>
-#include <kernel/utility/utility.h>
+#include "kernel/lock/spinlock.h"
+#include "kernel/utility/utility.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -75,13 +75,13 @@ struct Processor_LocalState {
         union X86_SegmentDescriptor x86_gdt[7];
         struct X86_TSS x86_tss;
         uint8_t flags;
+        uint8_t cpu_num;
         struct Processor_LocalState *x86_self; // Pointer to self
 };
 
 struct Processor_Thread {
-        void *x86_ist1_stack_base, *x86_ist1_rsp,
-                *x86_syscall_kernel_stack_base, *x86_syscall_kernel_rsp,
-                *x86_saved_rsp, *x86_saved_user_rsp, *x86_saved_user_rbp;
+        void *x86_ist1_stack_base, *x86_ist1_rsp, *x86_syscall_kernel_stack_base, *x86_syscall_kernel_rsp,
+             *x86_saved_rsp, *x86_saved_user_rsp, *x86_saved_user_rbp;
 };
 
 #define PAGE_SIZE 4096UL

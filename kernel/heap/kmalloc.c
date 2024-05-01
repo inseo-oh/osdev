@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "heap.h"
-#include <kernel/kernel.h>
-#include <kernel/lock/spinlock.h>
-#include <kernel/utility/utility.h>
+#include "kernel/kernel.h"
+#include "kernel/lock/spinlock.h"
+#include "kernel/utility/utility.h"
 #include <stdalign.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -101,6 +101,9 @@ void *kmalloc(size_t size) {
 }
 
 void kfree(void *ptr) {
+        if (!ptr) {
+                return;
+        }
         bool prev_interrupt_state;
         spinlock_lock(&s_lock, &prev_interrupt_state);
         struct Alloc *alloc =

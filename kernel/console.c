@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "kernel.h"
-#include <kernel/arch/arch.h>
-#include <kernel/utility/utility.h>
-#include <kernel/lock/spinlock.h>
-#include <kernel/tasks/tasks.h>
+#include "kernel/arch/arch.h"
+#include "kernel/utility/utility.h"
+#include "kernel/lock/spinlock.h"
+#include "kernel/tasks/tasks.h"
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>

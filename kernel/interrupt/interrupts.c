@@ -2,10 +2,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "interrupts.h"
-#include <kernel/arch/arch.h>
-#include <kernel/kernel.h>
-#include <kernel/lock/spinlock.h>
-#include <kernel/utility/utility.h>
+#include "kernel/arch/arch.h"
+#include "kernel/kernel.h"
+#include "kernel/lock/spinlock.h"
+#include "kernel/utility/utility.h"
 #include <stdbool.h>
 
 static char const *LOG_TAG = "interrupts";

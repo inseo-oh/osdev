@@ -2,8 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #include "spinlock.h"
-#include <kernel/arch/arch.h>
-#include <kernel/kernel.h>
+#include "kernel/arch/arch.h"
+#include "kernel/kernel.h"
 #include <stdbool.h>
 #ifdef SPINLOCK_STORE_LOCKED_LOCATION
 #include <stddef.h>

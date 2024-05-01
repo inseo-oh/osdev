@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #pragma once
-#include <kernel/utility/utility.h>
+#include "kernel/utility/utility.h"
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -60,13 +60,10 @@ void console_log(loglevel_t level, char const *tag, char const *fmt, ...);
 noreturn void panic(char const *fmt, ...);
 noreturn void panic_assert_fail(char const *file, int line, char *what);
 
-#define ASSERT(__x) \
-        (void)((__x) ? ((void)0) : panic_assert_fail(__FILE__, __LINE__, #__x))
-#define TODO_HANDLE_ERROR() \
-        panic("%s:%u: TODO: Handle errors", __FILE__, __LINE__);
-#define TODO() panic("%s:%u: TODO", __FILE__, __LINE__);
-#define UNREACHABLE() \
-        panic("%s:%u: Unreachable code reached", __FILE__, __LINE__);
+#define ASSERT(__x)           (void)((__x) ? ((void)0) : panic_assert_fail(__FILE__, __LINE__, #__x))
+#define TODO_HANDLE_ERROR()   panic("%s:%u: TODO: Handle errors", __FILE__, __LINE__);
+#define TODO()                panic("%s:%u: TODO", __FILE__, __LINE__);
+#define UNREACHABLE()         panic("%s:%u: Unreachable code reached", __FILE__, __LINE__);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Ticktime
@@ -98,7 +95,7 @@ void videoconsole_init(
 // ACPI
 ////////////////////////////////////////////////////////////////////////////////
 
-// TODO: Change field names to match normal ISOS naming convention.
+// TODO: Change field names to match normal YJK naming convention.
 struct ACPI_RSDP {
         uint8_t Signature[8]; // "RSD PTR "
         uint8_t Checksum;

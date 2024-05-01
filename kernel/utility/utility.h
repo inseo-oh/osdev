@@ -12,6 +12,9 @@
 // https://gcc.gnu.org/onlinedocs/gcc/x86-Function-Attributes.html#index-naked-function-attribute_002c-x86
 #define NAKED __attribute((naked))
 
+// https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#index-used-function-attribute
+#define USED __attribute((used))
+
 // https://gcc.gnu.org/onlinedocs/gcc-3.3/gcc/Type-Attributes.html
 #define PACKED       __attribute((packed))
 #define ALIGNED(__n) __attribute((aligned(__n)))

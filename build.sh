@@ -5,7 +5,7 @@ BUILD_DIR_BASE=build
 ARCH=$1
 case $ARCH in
         "x86")
-                TOOLCHAIN_PREFIX=toolchain/x86/bin/x86_64-isos-
+                TOOLCHAIN_PREFIX=toolchain/x86/bin/x86_64-yjk-
                 BUILD_DIR=$BUILD_DIR_BASE/x86
                 ;;
         *)
@@ -35,13 +35,15 @@ BOOTROOT=$OUT_DIR/bootroot
 ################################################################################
 OS_CC=$TOOLCHAIN_PREFIX"gcc"
 BUILD_INTERMEDIATES_DIR=$BUILD_DIR/intermediates
+PARANOID=OFF
+# PARANOID=ON
 
 support/tools/copy_libc_headers.sh $ARCH $PWD
 mkdir -p $BUILD_INTERMEDIATES_DIR
 touch kernel/builddate.h
 echo ">>> Compile system"
 CC=$OS_CC cmake -B $BUILD_INTERMEDIATES_DIR . -G Ninja \
-        -DCMAKE_BUILD_TYPE=Debug -DISOS_ARCH=$ARCH -DISOS_PARANOID=ON \
+        -DCMAKE_BUILD_TYPE=Debug -DYJK_ARCH=$ARCH -DYJK_PARANOID=$PARANOID \
         -DCMAKE_INSTALL_PREFIX=$BUILD_DIR/out 
 ninja -C $BUILD_INTERMEDIATES_DIR install
 
@@ -49,7 +51,7 @@ ninja -C $BUILD_INTERMEDIATES_DIR install
 # Create font file
 ################################################################################
 echo ">>> Create font file"
-support/tools/fontgen.py support/res/unifont-15.1.04.hex $BOOTROOT/isos/font.bin
+support/tools/fontgen.py support/res/unifont-15.1.04.hex $BOOTROOT/yjk/font.bin
 
 ################################################################################
 # Install bootloader and start the OS

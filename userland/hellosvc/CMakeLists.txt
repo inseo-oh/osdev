@@ -3,4 +3,4 @@ add_executable(hellosvc
         )
 add_dependencies(hellosvc c)
 
-install(TARGETS hellosvc DESTINATION ${ISOS_BOOTROOT}/isos)
+install(TARGETS hellosvc DESTINATION ${YJK_BOOTROOT}/yjk)
