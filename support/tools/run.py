@@ -40,7 +40,7 @@ qemu_args = [
         "-display", "sdl",
         "-d", "guest_errors",
         "-smp", "8",
-        "-no-reboot",
+        # "-no-reboot",
         # "-nographic",
 ]
 
