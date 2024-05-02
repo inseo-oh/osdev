@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+#include "Idt.h"
+
 extern "C" {
 #define NORETURN_WORKAROUND
 #include "_internal.h"
@@ -26,6 +28,8 @@ extern "C" {
 #endif
 #include <support/thirdparty/limine/limine.h>
 }
+
+namespace Kernel {
 
 USED LIMINE_BASE_REVISION(1)
 
@@ -193,7 +197,7 @@ namespace {
                         panic("MADT not found");
                 }
                 madt_init(madt);
-                idt_use_ist1();
+                Idt::use_ist1();
                 mmu_nuke_non_kernel_pages();
                 i8259pic_init();
                 lapic_init_for_bsp();
@@ -237,7 +241,7 @@ namespace {
         }
 
         void boot_stage2_ap() {
-                idt_use_ist1();
+                Idt::use_ist1();
                 lapic_init_for_ap();
                 lapic_enable();
                 lapic_timer_reset_to_1ms();
@@ -249,34 +253,39 @@ namespace {
 
 }
 
-
 USED struct limine_framebuffer_request framebuffer_request = {
         .id = LIMINE_FRAMEBUFFER_REQUEST,
         .revision = 0,
+        .response = nullptr,
 };
 
 USED struct limine_memmap_request memmap_request = {
         .id = LIMINE_MEMMAP_REQUEST,
         .revision = 0,
+        .response = nullptr,
 };
 
 USED struct limine_rsdp_request rsdp_request = {
         .id = LIMINE_RSDP_REQUEST,
         .revision = 0,
+        .response = nullptr,
 };
 
 USED struct limine_hhdm_request hhdm_request = {
         .id = LIMINE_HHDM_REQUEST,
         .revision = 0,
+        .response = nullptr,
 };
 
 
 USED struct limine_module_request module_request = {
         .id = LIMINE_MODULE_REQUEST,
         .revision = 1,
+        .response = nullptr,
 
         .internal_module_count = 2,
         .internal_modules = internal_modules,
+        
 };
 
 extern "C" [[noreturn]] void kernel_entry(void) {
@@ -291,7 +300,7 @@ extern "C" [[noreturn]] void kernel_entry(void) {
         init_videoconsole(false);
         kmalloc_init();
         processor_init_for_bsp();
-        idt_init_bsp();
+        Idt::init_bsp();
         register_physpages();
         if (hhdm_request.response == nullptr) {
                 panic("Requested HHDM to bootloader, but got no response");
@@ -302,9 +311,11 @@ extern "C" [[noreturn]] void kernel_entry(void) {
         scheduler_init_for_bsp(boot_stage2_bsp);
 }
 
-[[noreturn]] void kernel_entry_ap(unsigned ap_index) {
+extern "C" [[noreturn]] void kernel_entry_ap(unsigned ap_index) {
         processor_init_for_ap(ap_index);
-        idt_init_ap();
+        Idt::init_ap();
         mmu_init_for_ap(ap_index);
         scheduler_init_for_ap(boot_stage2_ap);
+}
+
 }

@@ -3,7 +3,7 @@ if (YJK_ARCH STREQUAL "x86")
         set(YJK_ARCH_CFLAGS -mno-red-zone -mgeneral-regs-only -mno-mmx -mno-sse -mno-sse2 -masm=intel)
         set(YJK_ARCH_SOURCES
                 arch/x86/entry.cc
-                arch/x86/i8254timer.c arch/x86/i8259pic.c arch/x86/idt.c
+                arch/x86/i8254timer.c arch/x86/i8259pic.c arch/x86/Idt.cc
                 arch/x86/ioapic.c arch/x86/ioport.c arch/x86/isr.c
                 arch/x86/interrupts.c
                 arch/x86/lapic.c
