@@ -212,6 +212,7 @@ void str_copy(
 bool str_equals_up_to(char const *str1, char const *str2, size_t n);
 bool str_equals(char const *str1, char const *str2);
 size_t kstrlen(char const *str);
+char *kstrchr(char const *s, int c);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Character types

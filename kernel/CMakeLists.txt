@@ -19,7 +19,7 @@ endif()
 
 add_executable(kernel
         # Root sources
-        console.c panic.c ticktime.c syscall.c acpi.c videoconsole.c
+        console.c panic.c ticktime.c syscall.c acpi.c videoconsole.c objpath.c
         # Multitasking
         tasks/scheduler.c tasks/thread.c tasks/process.c tasks/exec.c
         # Memory management

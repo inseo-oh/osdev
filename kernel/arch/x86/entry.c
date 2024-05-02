@@ -10,6 +10,7 @@
 #include "kernel/heap/heap.h"
 #include "kernel/kernel.h"
 #include "kernel/memory/memory.h"
+#include "kernel/objpath.h"
 #include "kernel/tasks/tasks.h"
 #include "kernel/utility/utility.h"
 #include <stdbool.h>
@@ -191,85 +192,6 @@ static void init_acpi(void) {
         acpi_load_root_sdt(rsdp_request.response->address);
 }
 
-char *kstrchr(char const *s, int c) {
-        while (1) {
-                if (*s == c) {
-                        return (char *)s;
-                }
-                if (!*s) {
-                        return NULL;
-                }
-                s++;
-        }
-}
-
-
-void objpath_free(char **opath) {
-        while (1) {
-                char *ptr = *opath;
-                if (!ptr) {
-                        break;
-                }
-                vmfree(*opath);
-                opath++;
-        }
-}
-
-void objpath_print(char **opath) {
-        while (1) {
-                char *ptr = *opath;
-                if (!ptr) {
-                        break;
-                }
-                console_printf("[objpath] %s\n", *opath);
-                opath++;
-        }
-}
-
-char **objpath_new(char const *path) {
-        char **out = NULL;
-        size_t path_count = 0;
-        while (path[0]) {
-                char *slash_pos = kstrchr(path, '/');
-                size_t len;
-                if (slash_pos) {
-                        len = slash_pos - path;
-                } else {
-                        len = kstrlen(path);
-                }
-                if (!len) {
-                        continue;
-                }
-                char *segment = vmmalloc(len + 1);
-                if (!segment) {
-                        goto oom;
-                }
-                kmemcpy(segment, path, len);
-                segment[len] = '\0';
-                char **new_out = vmrealloc(out, sizeof(void *) * (path_count + 1));
-                if (!new_out) {
-                        vmfree(segment);
-                        goto oom;
-                }
-                new_out[path_count] = segment;
-                path += len;
-                out = new_out;
-                path_count++;
-        }
-        char **new_out = vmrealloc(out, sizeof(void *) * (path_count + 1));
-        if (!new_out) {
-                goto oom;
-        }
-        new_out[path_count] = NULL;
-        return out;
-oom:
-        for (size_t i = 0; i < path_count; i++) {
-                vmfree(out[i]);
-        }
-        vmfree(out);
-        return NULL;
-}
-
 
 static void boot_stage2_bsp() {
         static char const *LOG_TAG = "boot-stage2(bsp)";
@@ -305,13 +227,6 @@ static void boot_stage2_bsp() {
         smpboot_start();
         interrupts_enable();
 
-        while(0) {
-                char **p = objpath_new("hello/world/sensei");
-                objpath_print(p);
-                objpath_free(p);
-                console_printf("-----------------\n");
-        }
-
         LOGI(LOG_TAG, "Kernel boot complete. Starting userspace software...");
         int64_t err = exec_module("/yjk/hellosvc");
         if (err < 0) {
@@ -319,6 +234,7 @@ static void boot_stage2_bsp() {
         }
 
         LOGI(LOG_TAG, "The system is ready for use");
+
         thread_spawn(process_running(), "kernel cli", cli_run);
         scheduler_run_idle_loop();
 }
