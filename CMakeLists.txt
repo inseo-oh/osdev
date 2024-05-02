@@ -21,7 +21,7 @@ set(
 )
 set(
         CMAKE_CXX_FLAGS
-        ${CMAKE_CXX_FLAGS} "-Wall -Werror -Wextra -fno-stack-protector -fno-exceptions -fno-rtti -std=c++11 ${YJK_ARCH_CFLAGS}"
+        ${CMAKE_CXX_FLAGS} "-Wall -Werror -Wextra -fno-stack-protector -fno-exceptions -fno-rtti -std=c++17 ${YJK_ARCH_CFLAGS}"
 )
 
 include_directories(BEFORE ${CMAKE_SOURCE_DIR})
