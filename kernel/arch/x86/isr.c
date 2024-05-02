@@ -8,7 +8,13 @@
 #include "kernel/kernel.h"
 #include <stdbool.h>
 #include <stdint.h>
+// XXX: This is temporary workaround until we fully move to C++
+#ifdef NORETURN_WORKAROUND
+#define NORETURN [[noreturn]]
+#else
 #include <stdnoreturn.h>
+#define NORETURN noreturn
+#endif
 #include "kernel/utility/utility.h"
 
 struct TrapFrame {
@@ -109,7 +115,7 @@ static void print_stacktrace(struct TrapFrame const *frm) {
         stacktrace_show_using_rbp((void *)frm->rbp);
 }
 
-noreturn static void
+NORETURN static void
 generic_exc_no_code(struct TrapFrame const *frm, uint8_t exc_num) {
         console_alert("EXCEPTION %u", exc_num);
         print_regs(frm);
@@ -117,7 +123,7 @@ generic_exc_no_code(struct TrapFrame const *frm, uint8_t exc_num) {
         panic("CPU exception");
 }
 
-noreturn static void generic_exc(struct TrapFrame const *frm, uint8_t exc_num) {
+NORETURN static void generic_exc(struct TrapFrame const *frm, uint8_t exc_num) {
         ASSERT(((uintptr_t)frm & 0xf) == 0);
         console_alert("EXCEPTION %u (Error code %x)", exc_num, frm->err_code);
         print_regs(frm);

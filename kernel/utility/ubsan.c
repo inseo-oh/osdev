@@ -4,7 +4,13 @@
 #ifdef YJK_ULTRA_PARANOID_MODE
 #include "kernel/kernel.h"
 #include <stdint.h>
+// XXX: This is temporary workaround until we fully move to C++
+#ifdef NORETURN_WORKAROUND
+#define NORETURN [[noreturn]]
+#else
 #include <stdnoreturn.h>
+#define NORETURN noreturn
+#endif
 
 struct SourceLocation {
         char const *file_name;
@@ -12,7 +18,7 @@ struct SourceLocation {
         uint32_t column;
 };
 
-static noreturn void
+static NORETURN void
 log_ub_and_die(struct SourceLocation loc, char const *ub_name) {
         panic("UBSAN: %s @ %s:%u:%u\n",
               ub_name,

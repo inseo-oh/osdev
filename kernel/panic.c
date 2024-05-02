@@ -26,6 +26,6 @@ void panic(char const *fmt, ...) {
         while (1) {}
 }
 
-void panic_assert_fail(char const *file, int line, char *what) {
+void panic_assert_fail(char const *file, int line, char const *what) {
         panic("%s:%u: Assertion failed: %s", file, line, what);
 }

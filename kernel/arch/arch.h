@@ -5,7 +5,13 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+// XXX: This is temporary workaround until we fully move to C++
+#ifdef NORETURN_WORKAROUND
+#define NORETURN [[noreturn]]
+#else
 #include <stdnoreturn.h>
+#define NORETURN noreturn
+#endif
 
 #if __x86_64__
 #include "x86/arch.h" // IWYU pragma: export
@@ -82,7 +88,7 @@ bool processor_thread_init(struct Processor_Thread *out, void *stack_top);
 void processor_thread_deinit(
         struct Processor_Thread *thread, struct Process *process
 );
-noreturn void processor_thread_enter_initial_kernel_thread(
+NORETURN void processor_thread_enter_initial_kernel_thread(
         struct Processor_Thread *new_thread, void (*entry_point)()
 );
 void processor_thread_enter(

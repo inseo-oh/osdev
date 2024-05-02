@@ -7,7 +7,14 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+// XXX: This is temporary workaround until we fully move to C++
+#ifdef NORETURN_WORKAROUND
+#define NORETURN [[noreturn]]
+#else
 #include <stdnoreturn.h>
+#define NORETURN noreturn
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // Console
@@ -57,8 +64,8 @@ void console_log(loglevel_t level, char const *tag, char const *fmt, ...);
 // Panic
 ////////////////////////////////////////////////////////////////////////////////
 
-noreturn void panic(char const *fmt, ...);
-noreturn void panic_assert_fail(char const *file, int line, char *what);
+NORETURN void panic(char const *fmt, ...);
+NORETURN void panic_assert_fail(char const *file, int line, char const *what);
 
 #define ASSERT(__x)           (void)((__x) ? ((void)0) : panic_assert_fail(__FILE__, __LINE__, #__x))
 #define TODO_HANDLE_ERROR()   panic("%s:%u: TODO: Handle errors", __FILE__, __LINE__);

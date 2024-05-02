@@ -8,7 +8,13 @@
 #include "kernel/kernel.h"
 #include "kernel/utility/utility.h"
 #include <stdbool.h>
+// XXX: This is temporary workaround until we fully move to C++
+#ifdef NORETURN_WORKAROUND
+#define NORETURN [[noreturn]]
+#else
 #include <stdnoreturn.h>
+#define NORETURN noreturn
+#endif
 
 #define CMD_NAME_MAX_LEN 15
 
@@ -141,7 +147,7 @@ static void skip_spaces(char **str) {
 
 // #define RUN_KMALLOC_TEST_IMMEDIATELY
 
-noreturn void cli_run(void) {
+NORETURN void cli_run(void) {
         interrupts_enable();
         while (1) {
 #ifndef RUN_KMALLOC_TEST_IMMEDIATELY

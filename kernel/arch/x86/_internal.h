@@ -7,6 +7,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
+// XXX: This is temporary workaround until we fully move to C++
+#ifdef NORETURN_WORKAROUND
+#define NORETURN [[noreturn]]
+#else
+#include <stdnoreturn.h>
+#define NORETURN noreturn
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 // IDT
 ////////////////////////////////////////////////////////////////////////////////
@@ -401,5 +409,5 @@ void syscall_init_msrs(void);
 ////////////////////////////////////////////////////////////////////////////////
 
 void stacktrace_show_using_rbp(void *rbp);
-noreturn void kernel_entry_ap(unsigned ap_index);
+NORETURN void kernel_entry_ap(unsigned ap_index);
 void uartconsole_init();

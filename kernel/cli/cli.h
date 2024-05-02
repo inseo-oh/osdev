@@ -2,6 +2,12 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 #pragma once
+// XXX: This is temporary workaround until we fully move to C++
+#ifdef NORETURN_WORKAROUND
+#define NORETURN [[noreturn]]
+#else
 #include <stdnoreturn.h>
+#define NORETURN noreturn
+#endif
 
-noreturn void cli_run(void);
+NORETURN void cli_run(void);

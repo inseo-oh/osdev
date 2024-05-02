@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 set(CMAKE_C_COMPILER_WORKS 1)
-project(yjk C ASM)
+set(CMAKE_CXX_COMPILER_WORKS 1)
+project(yjk C CXX ASM)
 
 set(YJK_BOOTROOT ${CMAKE_INSTALL_PREFIX}/bootroot)
 set(YJK_SYSROOT ${CMAKE_INSTALL_PREFIX}/sysroot)

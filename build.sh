@@ -34,6 +34,7 @@ BOOTROOT=$OUT_DIR/bootroot
 # Build OS
 ################################################################################
 OS_CC=$TOOLCHAIN_PREFIX"gcc"
+OS_CXX=$TOOLCHAIN_PREFIX"g++"
 BUILD_INTERMEDIATES_DIR=$BUILD_DIR/intermediates
 PARANOID=OFF
 # PARANOID=ON
@@ -42,7 +43,7 @@ support/tools/copy_libc_headers.sh $ARCH $PWD
 mkdir -p $BUILD_INTERMEDIATES_DIR
 touch kernel/builddate.h
 echo ">>> Compile system"
-CC=$OS_CC cmake -B $BUILD_INTERMEDIATES_DIR . -G Ninja \
+CC=$OS_CC CXX=$OS_CXX cmake -B $BUILD_INTERMEDIATES_DIR . -G Ninja \
         -DCMAKE_BUILD_TYPE=Debug -DYJK_ARCH=$ARCH -DYJK_PARANOID=$PARANOID \
         -DCMAKE_INSTALL_PREFIX=$BUILD_DIR/out 
 ninja -C $BUILD_INTERMEDIATES_DIR install

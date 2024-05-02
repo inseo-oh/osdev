@@ -8,7 +8,13 @@
 #include "kernel/utility/utility.h"
 #include <stdbool.h>
 #include <stddef.h>
+// XXX: This is temporary workaround until we fully move to C++
+#ifdef NORETURN_WORKAROUND
+#define NORETURN [[noreturn]]
+#else
 #include <stdnoreturn.h>
+#define NORETURN noreturn
+#endif
 #include <unistd.h>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +37,7 @@ bool thread_is_sleep_scheduled(struct Thread const *thread);
 void thread_set_waiting_mutex(struct Thread *thread, struct Mutex *mutex);
 struct Mutex *thread_get_waiting_mutex(struct Thread const *thread);
 struct Process *thread_get_parent_proc(struct Thread const *thread);
-noreturn void thread_enter_initial_kernel_thread(struct Thread *thread);
+NORETURN void thread_enter_initial_kernel_thread(struct Thread *thread);
 void thread_context_switch(struct Thread *from_thread, struct Thread *to_thread);
 // Similar to thread_spawn, but doesn't add thread to the scheduler.
 struct Thread *thread_create(struct Process *parent_process, char const *name, void (*entry_point)());
@@ -97,9 +103,9 @@ void scheduler_add_thread_to_wait_queue(struct Thread *thread);
 // NOTE: Only used for context switching
 USED void scheduler_about_to_enter_new_thread(void);
 void scheduler_wakeup_thread(struct Thread *thread);
-noreturn void scheduler_init_for_bsp(void (*thread_entry)());
-noreturn void scheduler_init_for_ap(void (*thread_entry)());
-noreturn void scheduler_run_idle_loop();
+NORETURN void scheduler_init_for_bsp(void (*thread_entry)());
+NORETURN void scheduler_init_for_ap(void (*thread_entry)());
+NORETURN void scheduler_run_idle_loop();
 
 // WARNING: Below functions lock the scheduler!
 void scheduler_yield(void);

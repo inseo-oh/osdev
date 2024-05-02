@@ -162,21 +162,13 @@ void list_insert_after(
 );
 void list_remove(struct List *list, struct List_Node *node);
 
-static inline void list_insert_head(struct List *list, struct List_Node *node) {
-        list_insert_before(list, node, list->head);
-}
+void list_insert_head(struct List *list, struct List_Node *node);
 
-static inline void list_insert_tail(struct List *list, struct List_Node *node) {
-        list_insert_after(list, node, list->tail);
-}
+void list_insert_tail(struct List *list, struct List_Node *node);
 
-static inline void list_remove_head(struct List *list) {
-        list_remove(list, list->head);
-}
+void list_remove_head(struct List *list);
 
-static inline void list_remove_tail(struct List *list) {
-        list_remove(list, list->tail);
-}
+void list_remove_tail(struct List *list);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Fixed size queue
