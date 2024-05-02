@@ -707,8 +707,9 @@ void processor_process_ipimessages(void) {
         ENTER_NO_INTERRUPT_SECTION();
         struct Processor_LocalState *state = processor_current();
         if (state->flags & PROCESSOR_LOCALSTATE_FLAG_X86_SHOULD_HALT) {
-                LOGI(LOG_TAG, "Halt");
-                while (1) {}
+                while (1) {
+                        __asm__ volatile ("hlt");
+                }
         }
         bool prev_interrupt_state;
         // The reason we "try" spinlock is because if we use spinlock_lock, it will then call processor_process_ipimessages()
@@ -785,12 +786,12 @@ static void send_message_and_wait(struct IPIMessage *msg) {
 }
 
 void processor_halt_others(void) {
-        if (am_i_processor(&s_bsp_localstate)) {
+        if (!am_i_processor(&s_bsp_localstate)) {
                 s_bsp_localstate.flags |=
                         PROCESSOR_LOCALSTATE_FLAG_X86_SHOULD_HALT;
         }
         for (size_t i = 0; i < s_ap_count; ++i) {
-                if (am_i_processor(&s_ap_localstates[i])) {
+                if (!am_i_processor(&s_ap_localstates[i])) {
                         s_ap_localstates[i].flags |=
                                 PROCESSOR_LOCALSTATE_FLAG_X86_SHOULD_HALT;
                 }
