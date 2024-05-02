@@ -36,19 +36,16 @@ struct HeapRegion {
 #define ALIGN_UP(_x) \
         (((_x) + alignof(max_align_t) - 1) & ~(sizeof(max_align_t) - 1))
 
-#define BITMAP_WORD_COUNT            1
-#define SMALL_REGION_MAX_BLOCK_COUNT (BITMAP_WORD_COUNT * BITMAP_BITS_PER_WORD)
-#define SMALL_REGION_PAGE_COUNT      1
-#define SMALL_REGION_SIZE            (SMALL_REGION_PAGE_COUNT * PAGE_SIZE)
-#define SMALL_REGION_POOL_SIZE       (SMALL_REGION_SIZE - sizeof(struct HeapRegion))
-#define SMALL_REGION_BLOCK_SIZE_UNALIGNED \
-        (SMALL_REGION_POOL_SIZE / SMALL_REGION_MAX_BLOCK_COUNT)
-#define SMALL_REGION_BLOCK_SIZE ALIGN_UP(SMALL_REGION_BLOCK_SIZE_UNALIGNED)
-#define SMALL_REGION_BLOCK_COUNT \
-        (SMALL_REGION_POOL_SIZE / SMALL_REGION_BLOCK_SIZE)
-#define SMALL_REGION_ALLOC_MAX_SIZE \
-        (SMALL_REGION_BLOCK_SIZE * SMALL_REGION_BLOCK_COUNT)
-#define WASTED_SIZE (SMALL_REGION_POOL_SIZE - SMALL_REGION_ALLOC_MAX_SIZE)
+#define BITMAP_WORD_COUNT                  1
+#define SMALL_REGION_MAX_BLOCK_COUNT       (BITMAP_WORD_COUNT * BITMAP_BITS_PER_WORD)
+#define SMALL_REGION_PAGE_COUNT            1
+#define SMALL_REGION_SIZE                  (SMALL_REGION_PAGE_COUNT * PAGE_SIZE)
+#define SMALL_REGION_POOL_SIZE             (SMALL_REGION_SIZE - sizeof(struct HeapRegion))
+#define SMALL_REGION_BLOCK_SIZE_UNALIGNED  (SMALL_REGION_POOL_SIZE / SMALL_REGION_MAX_BLOCK_COUNT)
+#define SMALL_REGION_BLOCK_SIZE            ALIGN_UP(SMALL_REGION_BLOCK_SIZE_UNALIGNED)
+#define SMALL_REGION_BLOCK_COUNT           (SMALL_REGION_POOL_SIZE / SMALL_REGION_BLOCK_SIZE)
+#define SMALL_REGION_ALLOC_MAX_SIZE        (SMALL_REGION_BLOCK_SIZE * SMALL_REGION_BLOCK_COUNT)
+#define WASTED_SIZE                        (SMALL_REGION_POOL_SIZE - SMALL_REGION_ALLOC_MAX_SIZE)
 
 struct Alloc {
         struct HeapRegion *region;
@@ -174,16 +171,14 @@ out:
 
 void vmfree(void *ptr) {
         bool prev_interrupt_state;
+        if (!ptr) {
+                return;
+        }
         spinlock_lock(&s_lock, &prev_interrupt_state);
-        struct Alloc *alloc =
-                (struct Alloc *)((uintptr_t)ptr - offsetof(struct Alloc, data));
-        uintptr_t offset_in_pool =
-                (uintptr_t)ptr - (uintptr_t)alloc->region->pool;
-        bitmap_bit_index_t block_index =
-                offset_in_pool / alloc->region->block_size;
-        bitmap_set_multi(
-                &alloc->region->bitmap, block_index, alloc->block_count
-        );
+        struct Alloc *alloc = (struct Alloc *)((uintptr_t)ptr - offsetof(struct Alloc, data));
+        uintptr_t offset_in_pool = (uintptr_t)ptr - (uintptr_t)alloc->region->pool;
+        bitmap_bit_index_t block_index = offset_in_pool / alloc->region->block_size;
+        bitmap_set_multi(&alloc->region->bitmap, block_index, alloc->block_count);
         --alloc->region->used_block_count;
         // If The region is empty -> Free the region
         if (!alloc->region->used_block_count) {
@@ -216,7 +211,7 @@ void *vmrealloc(void *ptr, size_t new_size) {
         bool prev_interrupt_state;
         spinlock_lock(&s_lock, &prev_interrupt_state);
         struct Alloc *alloc = (struct Alloc *)((uintptr_t)ptr - offsetof(struct Alloc, data));
-        size_t old_size = alloc->block_count * alloc->region->block_size;
+        size_t old_size = alloc->block_count * alloc->region->block_size - sizeof(struct Alloc);
         spinlock_unlock(&s_lock, prev_interrupt_state);
 
         // TODO: Consider implementing in-place reallocation.
@@ -224,6 +219,8 @@ void *vmrealloc(void *ptr, size_t new_size) {
         if (!new_ptr) {
                 return NULL;
         }
-        kmemcpy(new_ptr, ptr, old_size);
+        size_t copy_size = old_size < new_size ? old_size : new_size;
+        kmemcpy(new_ptr, ptr, copy_size);
+        vmfree(ptr);
         return new_ptr;
 }
