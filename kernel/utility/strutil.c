@@ -158,3 +158,17 @@ size_t kstrlen(char const *str) {
         for (char const *src = str; *src; ++src, ++len) {}
         return len;
 }
+
+
+char *kstrchr(char const *s, int c) {
+        while (1) {
+                if (*s == c) {
+                        return (char *)s;
+                }
+                if (!*s) {
+                        return NULL;
+                }
+                s++;
+        }
+}
+
