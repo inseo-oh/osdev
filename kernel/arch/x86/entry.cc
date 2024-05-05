@@ -4,6 +4,7 @@
 
 #include "Idt.h"
 #include "SmpBoot.h"
+#include "Syscall.h"
 
 extern "C" {
 #define NORETURN_WORKAROUND
@@ -213,8 +214,8 @@ namespace {
                         lapic_count(),
                         s_total_mem_size_in_mb
                 );
-                syscall_init_tables();
-                syscall_init_msrs();
+                Syscall::init_tables();
+                Syscall::init_msrs();
                 lapic_enable();
                 // APIC timer must be calibrated before we start other processors
                 i8254timer_stop();
@@ -246,7 +247,7 @@ namespace {
                 lapic_init_for_ap();
                 lapic_enable();
                 lapic_timer_reset_to_1ms();
-                syscall_init_msrs();
+                Syscall::init_msrs();
                 interrupts_enable();
                 SmpBoot::ap_did_boot();
                 scheduler_run_idle_loop();

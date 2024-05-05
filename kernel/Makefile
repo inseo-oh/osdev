@@ -38,7 +38,7 @@ YJK_OBJS += arch/x86/lapic.o
 YJK_OBJS += arch/x86/madt.o 
 YJK_OBJS += arch/x86/mmu.o 
 YJK_OBJS += arch/x86/processor.o 
-YJK_OBJS += arch/x86/SmpBoot.o arch/x86/stacktrace.o arch/x86/syscall.o
+YJK_OBJS += arch/x86/SmpBoot.o arch/x86/stacktrace.o arch/x86/Syscall.o
 YJK_OBJS += arch/x86/uartconsole.o arch/x86/uaccess.o
 # - Invalid architecture
 else
