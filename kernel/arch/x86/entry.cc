@@ -298,7 +298,7 @@ extern "C" [[noreturn]] void kernel_entry(void) {
         }
         uartconsole_init();
         console_printf("Kernel is starting up\n");
-#ifdef YJK_ULTRA_PARANOID_MODE
+#ifndef NDEBUG
         console_printf("YJK_ULTRA_PARANOID_MODE is ON\n");
 #endif
         init_videoconsole(false);
