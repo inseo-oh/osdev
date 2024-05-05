@@ -9,12 +9,12 @@ ARCH=$1
 SOURCE_ROOT=$2
 
 case $ARCH in
-  "x86")
-    ;;
-  *)
-    echo "Unknown arch $ARCH";
-    exit 1;
-    ;;
+        "x86")
+                ;;
+        *)
+                echo "Unknown arch $ARCH";
+                exit 1;
+        ;;
 esac
 
 

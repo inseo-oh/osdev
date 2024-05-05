@@ -145,8 +145,8 @@ void *process_map_pages(struct Process *process, uintptr_t physbase, size_t page
         ASSERT(physbase != 0);
         ASSERT(is_aligned(PAGE_SIZE, physbase));
         bool prev_interrupt_state;
-        spinlock_lock(&process->lock, &prev_interrupt_state);
         mmu_prot_t prot_flags = make_mmu_prot_flags(process, options);
+        spinlock_lock(&process->lock, &prev_interrupt_state);
         void *virtbase = virtzone_alloc_region(&process->virtzone, page_count);
         if (!virtbase) {
                 goto fail;

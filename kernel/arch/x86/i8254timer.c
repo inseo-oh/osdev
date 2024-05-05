@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
 #include "_internal.h"
 #include "kernel/arch/arch.h"
-#include "kernel/kernel.h"
 #include <stdint.h>
 
 // I/O addresses
@@ -60,8 +59,6 @@ void i8254timer_stop(void) {
 }
 
 void i8254timer_oneshot_count(unsigned millis) {
-        // ASSERT((DESIRED_CNT_VALUE * millis) <= 0xffff);
-        ASSERT(1);
         ioport_out8(
                 IO_MODE,
                 MODE_FLAG_SEL_CH0 | MODE_FLAG_ACCESS_LSB_MSB |

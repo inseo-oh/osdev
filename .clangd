@@ -1,2 +1,2 @@
 CompileFlags:
-        CompilationDatabase: "build/x86/intermediates"
+        Add: [-xc++]

@@ -207,6 +207,7 @@ struct GDTR {
 static struct Processor_LocalState s_bsp_localstate;
 static struct Processor_LocalState *s_ap_localstates;
 static size_t s_ap_count;
+static size_t s_online_ap_count;
 
 static void use_thread_ist_and_syscall_stack(
         struct Processor_LocalState *state,
@@ -665,6 +666,7 @@ void processor_init_for_bsp(void) {
 void processor_init_for_ap(unsigned ap_index) {
         struct Processor_LocalState *state = &s_ap_localstates[ap_index];
         state->cpu_num = 1 + ap_index;
+        s_online_ap_count++;
         init_common(state);
 }
 

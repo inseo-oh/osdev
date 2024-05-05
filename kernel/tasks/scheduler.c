@@ -200,8 +200,7 @@ void scheduler_init_for_ap(void (*thread_entry)()) {
         if (!kernel_boot_thread) {
                 panic("Failed to spawn kernel boot thread");
         }
-        // Scheduler gets unlocked when entering a new thread, so it needs to be
-        // locked first.
+        // Scheduler gets unlocked when entering a new thread, so it needs to be locked first.
         bool prev_interrupt_state;
         spinlock_lock(&s_lock, &prev_interrupt_state);
         thread_enter_initial_kernel_thread(kernel_boot_thread);

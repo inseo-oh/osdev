@@ -3,11 +3,11 @@ set(CMAKE_C_COMPILER_WORKS 1)
 set(CMAKE_CXX_COMPILER_WORKS 1)
 project(yjk C CXX ASM)
 
-set(YJK_BOOTROOT ${CMAKE_INSTALL_PREFIX}/bootroot)
-set(YJK_SYSROOT ${CMAKE_INSTALL_PREFIX}/sysroot)
+set(YJK_BOOT_ROOT ${CMAKE_INSTALL_PREFIX}/bootroot)
+set(YJK_SYS_ROOT ${CMAKE_INSTALL_PREFIX}/sysroot)
 set(YJK_SUPPORT_DIR ${CMAKE_SOURCE_DIR}/support)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_C_CLANG_TIDY clang-tidy --extra-arg-before=--sysroot=${YJK_SYSROOT} --extra-arg-before=-isystem=${YJK_SYSROOT}/usr/include)
+set(CMAKE_C_CLANG_TIDY clang-tidy --extra-arg-before=--sysroot=${YJK_SYS_ROOT} --extra-arg-before=-isystem=${YJK_SYS_ROOT}/usr/include)
 
 if (YJK_ARCH STREQUAL "x86")
         # FIXME: Remove these flags from userland when we are ready
@@ -35,8 +35,8 @@ install(FILES
         ${YJK_LIMINE_DIR}/limine-bios.sys
         ${YJK_LIMINE_DIR}/limine-bios-cd.bin
         ${YJK_LIMINE_DIR}/limine-uefi-cd.bin
-        DESTINATION ${YJK_BOOTROOT})
+        DESTINATION ${YJK_BOOT_ROOT})
 install(FILES
         ${YJK_LIMINE_DIR}/BOOTX64.EFI
         ${YJK_LIMINE_DIR}/BOOTIA32.EFI
-        DESTINATION ${YJK_BOOTROOT}/EFI/BOOT/)
+        DESTINATION ${YJK_BOOT_ROOT}/EFI/BOOT/)

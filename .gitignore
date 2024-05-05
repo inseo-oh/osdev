@@ -3,3 +3,4 @@ toolchain
 .cache
 .vscode
 support/thirdparty/limine
+compile_commands.json

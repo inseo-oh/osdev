@@ -93,9 +93,12 @@ make install
 
 cd $GCC_BUILD_DIR
 echo " >>> Configure GCC"
-$GCC_SRC_DIR/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot=$SYSROOT --disable-nls --enable-languages=c,c++
+$GCC_SRC_DIR/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot=$SYSROOT --disable-nls --disable-default-pie --enable-languages=c,c++
 echo " >>> Compile gcc"
-make all-gcc all-target-libgcc -j$(MAKEJOBS)
+make all-gcc -j$(MAKEJOBS)
+echo " >>> Compile libgcc"
+# https://wiki.osdev.org/Building_libgcc_for_mcmodel%3Dkernel
+make all-target-libgcc CFLAGS_FOR_TARGET='-g -O2 -mcmodel=large -mno-red-zone'
 echo " >>> Install gcc"
 make install-gcc install-target-libgcc
 cd $GCC_BUILD_DIR

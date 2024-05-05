@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: BSD-2-Clause
 
 #include "Idt.h"
+#include "SmpBoot.h"
 
 extern "C" {
 #define NORETURN_WORKAROUND
@@ -106,7 +107,7 @@ namespace {
                                 descriptor.base + descriptor.page_count * PAGE_SIZE;
                         uintptr_t apic_code_end_addr =
                                 SMPBOOT_AP_BOOT_CODE_PHYS_BASE +
-                                smpboot_ap_boot_code_page_count() * PAGE_SIZE;
+                                SmpBoot::ap_boot_code_page_count() * PAGE_SIZE;
 
                         if ((descriptor.base <= SMPBOOT_AP_BOOT_CODE_PHYS_BASE) ||
                         (region_end_addr <= apic_code_end_addr)) {
@@ -218,7 +219,7 @@ namespace {
                 // APIC timer must be calibrated before we start other processors
                 i8254timer_stop();
                 lapic_timer_reset_to_1ms();
-                smpboot_start();
+                SmpBoot::start();
                 interrupts_enable();
 
                 LOGI(LOG_TAG, "Kernel boot complete. Starting userspace software...");
@@ -247,7 +248,7 @@ namespace {
                 lapic_timer_reset_to_1ms();
                 syscall_init_msrs();
                 interrupts_enable();
-                smpboot_ap_did_boot();
+                SmpBoot::ap_did_boot();
                 scheduler_run_idle_loop();
         }
 
@@ -311,10 +312,14 @@ extern "C" [[noreturn]] void kernel_entry(void) {
         scheduler_init_for_bsp(boot_stage2_bsp);
 }
 
+// TODO: Remove "extern C"
 extern "C" [[noreturn]] void kernel_entry_ap(unsigned ap_index) {
         processor_init_for_ap(ap_index);
         Idt::init_ap();
         mmu_init_for_ap(ap_index);
+        while (SmpBoot::next_ap_to_init() != ap_index) {
+                processor_wait_during_spinloop();
+        }
         scheduler_init_for_ap(boot_stage2_ap);
 }
 
