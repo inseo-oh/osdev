@@ -32,7 +32,7 @@ YJK_OBJS += utility/list.o utility/ubsan.o utility/avltree.o utility/strutil.o u
 ifeq ($(YJK_ARCH), x86)
 YJK_OBJS += arch/x86/entry.o
 YJK_OBJS += arch/x86/i8254timer.o arch/x86/i8259pic.o arch/x86/Idt.o
-YJK_OBJS += arch/x86/ioapic.o arch/x86/ioport.o arch/x86/isr.o
+YJK_OBJS += arch/x86/ioapic.o arch/x86/ioport.o arch/x86/Isr.o
 YJK_OBJS += arch/x86/interrupts.o
 YJK_OBJS += arch/x86/lapic.o
 YJK_OBJS += arch/x86/madt.o 
