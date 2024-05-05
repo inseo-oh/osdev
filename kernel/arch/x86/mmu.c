@@ -283,8 +283,9 @@ bool mmu_map(
         ASSERT((entry & PAGING_FLAG_RW) || !is_write);
         uintptr_t pm1_physbase = ENTRY_BASE_ADDR_OF(entry);
         entry = physaddr | paging_flags_from_prot(prot);
+        ASSERT(!(get_table_entry(pm1_physbase, PML1_ENTRY_INDEX_OF(virtaddr)) & PAGING_FLAG_P));
         set_table_entry(pm1_physbase, PML1_ENTRY_INDEX_OF(virtaddr), entry);
-        invalidate_tlb_for(virtaddr);
+        // invalidate_tlb_for(virtaddr);
         success = true;
 out:
         spinlock_unlock(&s_lock, prev_interrupt_state);
@@ -303,17 +304,25 @@ void mmu_update_options(
         bool prev_interrupt_state;
         spinlock_lock(&s_lock, &prev_interrupt_state);
         uintptr_t pm1_physbase;
-        paging_entry_t pt_entry;
+        paging_entry_t old_pt_entry;
         // NOTE: `handle` is address to PML3
         bool is_present = get_pt_base_and_entry(
-                virtaddr, handle, prot, &pm1_physbase, &pt_entry
+                virtaddr, handle, prot, &pm1_physbase, &old_pt_entry
         );
         ASSERT(is_present);
-        set_table_entry(
-
-                pm1_physbase, PML1_ENTRY_INDEX_OF(virtaddr), pt_entry
-        );
-        invalidate_tlb_for(virtaddr);
+        paging_entry_t new_pt_entry = old_pt_entry;
+        new_pt_entry &= ~(PAGING_FLAG_RW | PAGING_FLAG_US);
+        new_pt_entry |= prot;
+        if (new_pt_entry != old_pt_entry) {
+                set_table_entry(
+                        pm1_physbase, PML1_ENTRY_INDEX_OF(virtaddr), new_pt_entry
+                );
+                bool is_read_to_write_transition = !(old_pt_entry & PAGING_FLAG_RW) && (new_pt_entry & PAGING_FLAG_RW);
+                bool is_noexec_to_exec_transition = (old_pt_entry & PAGING_FLAG_XD) && !(new_pt_entry & PAGING_FLAG_XD);
+                if (!is_read_to_write_transition && !is_noexec_to_exec_transition) {
+                        invalidate_tlb_for(virtaddr);
+                }
+        }
         spinlock_unlock(&s_lock, prev_interrupt_state);
 }
 

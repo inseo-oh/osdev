@@ -212,15 +212,36 @@ USED void isr_exc14_handler(struct TrapFrame *frm) {
         void *virtaddr;
         __asm__ volatile("mov %0, cr2" : "=r"(virtaddr));
         bool is_present = (err & FLAG_P) == FLAG_P;
+        bool is_write = (err & FLAG_W) == FLAG_W;
+        bool is_exec = (err & FLAG_I) == FLAG_I;
         bool is_user_page;
+        bool do_prot_test = false;
+        uint32_t prot_to_test = 0;
+        if (!is_present) {
+                do_prot_test = true;
+        } else {
+                if (is_write) {
+                        do_prot_test = true;
+                        prot_to_test |= MMU_PROT_WRITE;
+                }
+                if (is_exec) {
+                        do_prot_test = true;
+                        prot_to_test |= MMU_PROT_EXEC;
+                }
+        }
+
+        if (do_prot_test && mmu_is_accessible(virtaddr, prot_to_test)) {
+                // This was likely just TLB cache issue.
+                mmu_invalidate_local_tlb_for(virtaddr);
+                return;
+        }
         if (is_present) {
                 is_user_page = mmu_is_accessible(virtaddr, MMU_PROT_USER);
         } else {
                 is_user_page = false;
         }
         console_alert(
-                "EXCEPTION 14(#PF) at %p(User=%u) [R=%u PK=%u SS=%u W=%u I=%u "
-                "U=%u P=%u]",
+                "EXCEPTION 14(#PF) at %p(User=%u) [R=%u PK=%u SS=%u W=%u I=%u U=%u P=%u]",
                 virtaddr,
                 is_user_page,
                 (err & FLAG_R) == FLAG_R,
