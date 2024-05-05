@@ -289,7 +289,10 @@ USED struct limine_module_request module_request = {
         
 };
 
+extern "C" void _init();
+
 extern "C" [[noreturn]] void kernel_entry(void) {
+        _init(); // Initialize CRT
         if (!LIMINE_BASE_REVISION_SUPPORTED) {
                 doomed();
         }

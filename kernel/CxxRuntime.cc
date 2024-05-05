@@ -3,7 +3,10 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
+extern "C" {
+#define NORETURN_WORKAROUND
 #include "kernel/kernel.h"
+}
 
 namespace Kernel::CxxRuntime {
 

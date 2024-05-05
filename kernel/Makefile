@@ -10,7 +10,7 @@ YJK_TARGET_NAME = kernel
 YJK_TARGET_TYPE = EXEC
 
 # Root sources
-YJK_OBJS = console.o panic.o ticktime.o syscall.o acpi.o videoconsole.o objpath.o
+YJK_OBJS = console.o panic.o ticktime.o syscall.o acpi.o videoconsole.o objpath.o CxxRuntime.o
 # Multitasking
 YJK_OBJS += tasks/scheduler.o tasks/thread.o tasks/process.o tasks/exec.o
 # Memory management
