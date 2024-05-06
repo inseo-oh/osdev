@@ -2,9 +2,9 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "Idt.h"
-#include "SmpBoot.h"
-#include "Syscall.h"
+#include "Idt.hh"
+#include "SmpBoot.hh"
+#include "Syscall.hh"
 
 extern "C" {
 #define NORETURN_WORKAROUND

@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: (c) 2024 Inseo Oh <dhdlstjtr@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
-#include "SmpBoot.h"
-#include "kernel/utility/Atomic.h"
+#include "SmpBoot.hh"
+#include "kernel/utility/Atomic.hh"
 
 extern "C" {
 #define NORETURN_WORKAROUND

@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: (c) 2024 Inseo Oh <dhdlstjtr@gmail.com>
 //
 // SPDX-License-Identifier: BSD-2-Clause
-#include "Idt.h"
-#include "Isr.h"
+#include "Idt.hh"
+#include "Isr.hh"
 extern "C" {
 #define NORETURN_WORKAROUND
 #include "_internal.h"

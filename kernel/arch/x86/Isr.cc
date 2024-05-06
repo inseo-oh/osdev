@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: BSD-2-Clause
 
-#include "Isr.h"
+#include "Isr.hh"
 
 extern "C" {
 #define NORETURN_WORKAROUND
